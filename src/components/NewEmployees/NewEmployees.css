@@ -1,0 +1,763 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  overflow: hidden; /* ป้องกัน scrollbar ของ global */
+}
+
+.dashboard-main {
+  flex: 1;
+  margin-left: calc(200px + 1rem);
+  padding: 1rem;
+  height: 100vh;
+  width: calc(100vw - 200px);
+  color: var(--text-primary);
+  overflow: hidden; /* ป้องกัน scrollbar ของ container */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ปรับ page content */
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* ป้องกัน scrollbar ของ page content */
+}
+
+/* ปรับ tabs */
+.tabs-container {
+  margin-bottom: 0.1rem; /* ลดจาก 1rem เป็น 0.5rem */
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.1rem; /* คงเดิม */
+  margin-bottom: 0.1rem; /* คงเดิม */
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none; /* Remove outline */
+}
+
+.tab:focus {
+  outline: none; /* Remove outline on focus */
+}
+
+.tab.active {
+  color: var(--accent-color);
+  position: relative;
+  outline: none;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-color);
+  animation: slideIn 0.3s ease;
+}
+
+/* Optional: Add subtle hover effect */
+.tab:hover:not(.active) {
+  color: var(--accent-color);
+  opacity: 0.7;
+}
+
+/* สำหรับ tab ที่สามารถคลิกได้ */
+.tab:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* อนิเมชันสำหรับ tab indicator */
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ปรับ form container */
+.form-container {
+  flex: 1;
+  overflow-y: auto; /* ให้ scroll เฉพาะใน form */
+  padding: 1.5rem;
+  padding-right: 1rem; /* ลด padding ขวาเพื่อให้ scrollbar ไม่ทับเนื้อหา */
+  animation: slideUp 0.5s ease;
+}
+
+/* Custom scrollbar สำหรับ form container */
+.form-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 82, 243, 0.15);
+  border-radius: 3px;
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 82, 243, 0.3);
+}
+
+/* Dark mode scrollbar */
+[data-theme='dark'] .form-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .form-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ปรับ profile upload */
+.profile-upload {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.upload-area {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: rgb(185, 185, 185);
+}
+
+.upload-area:hover {
+  border-color: var(--accent-color);
+  background-color: rgb(114, 82, 243);
+  transform: translateY(-2px);
+}
+
+.upload-area img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ปรับ document upload section */
+.document-upload {
+  margin-bottom: 0.75rem;
+}
+
+.document-upload h3 {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-box {
+  width: 100%;
+}
+
+.upload-area-doc {
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  min-height: 120px; /* กำหนดความสูงขั้นต่ำ */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.upload-area-doc:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+  background-color: rgba(113, 82, 243, 0.02);
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.upload-label {
+  cursor: pointer;
+}
+
+.upload-label p {
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+}
+
+.choose-text {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+.supported-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* จัดการ grid สำหรับ document uploads */
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* ปรับขนาด form fields */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-grid.three-columns {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem 1rem;
+  height: 45px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-group select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1em;
+}
+
+.form-group select:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(113, 82, 243, 0.02);
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(113, 82, 243, 0.02);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(113, 82, 243, 0.1);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+/* เพิ่ม styles สำหรับ error */
+.error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.error-text {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc3545;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* ปรับสไตล์ error text */
+.error-text {
+  color: #ff4444; /* สีแดงสว่าง */
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ปรับ input ที่มี error */
+.form-group input.error,
+.form-group select.error {
+  border-color: #ff4444;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus {
+  border-color: #ff4444;
+  box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+}
+
+/* ปรับ form actions ให้อยู่ด้านล่างเสมอ */
+.form-actions {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background-color: var(--bg-primary);
+}
+
+/* Dark mode - ลบสีพื้นหลังเช่นกัน */
+[data-theme='dark'] .form-actions {
+  background: transparent;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-next {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back {
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background-color: #e6e6e6;
+  transform: translateY(-2px);
+}
+
+.btn-cancel:hover {
+  background-color: var(--border-color);
+  transform: translateY(-2px);
+}
+
+.btn-next:hover {
+  background-color: #5e41d9;
+  transform: translateY(-2px);
+}
+
+.btn-submit {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .form-group label {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .form-group input,
+[data-theme='dark'] .form-group select {
+  background-color: #2C2C3A;
+  border-color: #3F3F4E;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .form-group select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .form-group select option {
+  background-color: var(--bg-primary);
+}
+
+[data-theme='dark'] .form-group input:hover,
+[data-theme='dark'] .form-group input:focus,
+[data-theme='dark'] .form-group select:hover,
+[data-theme='dark'] .form-group select:focus {
+  background-color: #363645;
+  border-color: var(--accent-color);
+}
+
+[data-theme='dark'] .form-group input::placeholder {
+  color: #8E8E9D; /* สีของ placeholder ให้อ่านง่ายขึ้น */
+}
+
+[data-theme='dark'] .upload-area svg {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .tab {
+  color: #ffffff;
+}
+
+[data-theme='dark'] .btn-cancel {
+  background-color: #3F3F4E;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .btn-cancel:hover {
+  background-color: #4A4A5A;
+}
+
+[data-theme='dark'] .form-group input,
+[data-theme='dark'] .form-group select {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .form-group input:focus,
+[data-theme='dark'] .form-group select:focus {
+  border-color: var(--accent-color);
+}
+
+/* เพิ่มต่อท้าย Dark mode styles */
+[data-theme='dark'] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* ทำให้ไอคอนกลายเป็นสีขาว */
+  cursor: pointer;
+}
+
+[data-theme='dark'] .error-text {
+  color: #ff6666; /* สีแดงสว่างขึ้นสำหรับ dark mode */
+}
+
+[data-theme='dark'] .form-group input.error,
+[data-theme='dark'] .form-group select.error {
+  border-color: #ff6666;
+}
+
+[data-theme='dark'] .form-group input.error:focus,
+[data-theme='dark'] .form-group select.error:focus {
+  border-color: #ff6666;
+  box-shadow: 0 0 0 3px rgba(255, 102, 102, 0.15);
+}
+
+/* Adjust for minimized sidebar */
+[data-theme='minimized'] .dashboard-main {
+  margin-left: calc(60px + 1rem);
+  width: calc(100vw - 60px);
+}
+
+/* Customize scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+/* Specific scrollbar styles for form-container */
+.form-container::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 82, 243, 0.2);
+}
+
+.form-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 82, 243, 0.3);
+}
+
+/* Dark mode scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Salary input group */
+.salary-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.salary-input-group input {
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.75rem 3rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  width: 100%;
+  transition: all 0.3s ease;
+  /* เพิ่ม style ใหม่เพื่อซ่อนลูกศร */
+  -moz-appearance: textfield;
+}
+
+/* ซ่อนลูกศรสำหรับ Chrome, Safari, Edge, Opera */
+.salary-input-group input::-webkit-outer-spin-button,
+.salary-input-group input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.salary-btn {
+  position: absolute;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 8px;
+  background: none; /* ลบสีพื้นหลัง */
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none; /* ลบกรอบสีดำเวลากด */
+  -webkit-tap-highlight-color: transparent; /* ลบ highlight สีฟ้าบนมือถือ */
+}
+
+.salary-btn:focus {
+  outline: none;
+}
+
+.salary-btn.decrease {
+  left: 0.5rem;
+}
+
+.salary-btn.increase {
+  right: 0.5rem;
+}
+
+.salary-btn:hover {
+  color: var(--accent-color); /* เปลี่ยนเป็นเปลี่ยนสีตัวอักษรแทน */
+  transform: scale(1.05);
+}
+
+.salary-btn:active {
+  transform: scale(0.95);
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .salary-btn,
+[data-theme='dark'] .salary-btn:hover {
+  background: none;
+}
+
+[data-theme='dark'] .salary-btn:hover {
+  color: var(--accent-color);
+}
+
+/* อนิเมชันสำหรับ form container */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Confirmation modal styles */
+.confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmation-modal {
+  background-color: var(--bg-primary);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.confirmation-modal h3 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.confirmation-modal p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+/* Work history section */
+.work-history-section {
+  margin-top: 1.5rem;
+}
+
+.work-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+
+.work-history-table th,
+.work-history-table td {
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.work-history-table input[type="text"],
+.work-history-table input[type="date"] {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 0.95rem;
+}
+
+.btn-remove-row {
+  font-size: 1.2rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  outline: none;
+}
+
+.btn-remove-row:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-add-row {
+  margin-top: 0.5rem;
+  background: #7152f3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add-row:hover {
+  background: #5e41d9;
+}

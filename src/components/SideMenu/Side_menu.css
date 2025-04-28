@@ -1,0 +1,295 @@
+.side-menu {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: 200px; /* ปรับลดลงจาก 280px */
+  height: calc(100vh - 2rem);
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  z-index: 100;
+  transition: all 0.3s ease;
+  padding: 0.8rem;
+  
+}
+
+/* ปรับปรุง styles สำหรับ sidemenu เมื่อมี popup */
+.side-menu.has-popup {
+  opacity: 0.3;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); /* For Safari support */
+  transition: all 0.3s ease;
+}
+
+.side-menu.minimized {
+  width: 70px; /* ปรับลดลงจาก 80px */
+  padding: 0.8rem 0.4rem;
+}
+
+.logo-container {
+  position: relative;
+  margin-bottom: 1.5rem; /* ปรับลดลงจาก 2rem */
+  display: flex;
+  justify-content: center;
+  padding: 0.4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #7152F3;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 0.2rem;
+  transition: all 0.2s ease;
+}
+
+.logo:hover {
+  background-color: #F3F2FF;
+}
+
+.logo:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(113, 82, 243, 0.2);
+}
+
+.logo-icon {
+  background-color: #7152F3;
+  color: white;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.minimize-btn {
+  display: none;
+}
+
+.menu-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem; /* ปรับลดลงจาก 1rem */
+  margin-top: 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem; /* ปรับลดลงจาก 1rem */
+  padding: 0.6rem 0.8rem; /* ปรับลดลงจาก 0.8rem 1rem */
+  border-radius: 0.4rem;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  font-size: 0.9rem; /* ปรับลดลงจาก 0.95rem */
+}
+
+.menu-item.active {
+  background-color: #7152F3;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: -0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 12px;
+  background-color: #7152F3;
+  border-radius: 0 2px 2px 0;
+}
+
+.menu-item:hover {
+  background-color: #F3F2FF;
+  color: #7152F3;
+  transform: translateX(2px);
+}
+
+.menu-icon {
+  font-size: 1.1rem; /* ปรับลดลงจาก 1.2rem */
+  width: 1.1rem;
+}
+
+.menu-text {
+  font-size: 0.9rem; /* ปรับลดลงจาก 0.95rem */
+  font-weight: 500;
+}
+
+.side-menu.minimized .menu-item {
+  padding: 0.4rem;
+  justify-content: center;
+}
+
+.side-menu.minimized .logo {
+  justify-content: center;
+  padding: 0.5rem 0;
+  position: relative;
+}
+
+.side-menu.minimized .logo-icon {
+  margin: 0;
+}
+
+.side-menu.minimized .menu-icon {
+  margin: 0;
+}
+
+.side-menu.minimized .menu-item {
+  position: relative;
+}
+
+.side-menu.minimized .menu-item:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  margin-left: 10px;
+  z-index: 1000;
+}
+
+.side-menu.minimized .logo:hover::after {
+  content: "Expand menu";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  margin-left: 10px;
+  z-index: 1000;
+}
+
+/* --- Custom Switch for Theme Toggle (from Uiverse.io, class renamed to avoid collision) --- */
+.theme-switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 64px;
+  height: 34px;
+  display: none !important; /* ปรับแสดงปุ่มสลับธีม*/
+}
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.theme-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #73C0FC;
+  transition: .4s;
+  border-radius: 30px;
+}
+.theme-slider:before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 30px;
+  border-radius: 20px;
+  left: 2px;
+  bottom: 2px;
+  z-index: 2;
+  background-color: #e8e8e8;
+  transition: .4s;
+}
+.theme-sun svg {
+  position: absolute;
+  top: 6px;
+  left: 36px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+}
+.theme-moon svg {
+  fill: #73C0FC;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+}
+.theme-switch:hover .theme-sun svg {
+  animation: rotate 15s linear infinite;
+}
+@keyframes rotate {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+.theme-switch:hover .theme-moon svg {
+  animation: tilt 5s linear infinite;
+}
+@keyframes tilt {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+.theme-input:checked + .theme-slider {
+  background-color: #183153;
+}
+.theme-input:focus + .theme-slider {
+  box-shadow: 0 0 1px #183153;
+}
+.theme-input:checked + .theme-slider:before {
+  transform: translateX(30px);
+}
+
+/* --- Improved Dark Mode Styles --- */
+.side-menu.dark {
+  background-color: #2C2C3A;
+  box-shadow: 0 4px 24px 0 rgba(44,44,58,0.25);
+}
+.side-menu.dark .logo {
+  color: #7152F3;
+}
+.side-menu.dark .logo-icon {
+  background-color: #7152F3;
+  color: #2C2C3A;
+}
+.side-menu.dark .menu-item {
+  color: #E0E0E0;
+  background: none;
+}
+.side-menu.dark .menu-item:hover {
+  background-color: #393958;
+  color: #7152F3;
+  transform: translateX(2px) scale(1.03);
+}
+.side-menu.dark .menu-item.active {
+  background-color: #7152F3;
+  color: #2C2C3A;
+  font-weight: 700;
+}
+.side-menu.dark .menu-item.active::before {
+  background-color: #7152F3;
+}
+.side-menu.dark .theme-toggle {
+  background: none; /* ลบสีพื้นหลังออก */
+}

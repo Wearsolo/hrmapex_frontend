@@ -1,0 +1,55 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #F3F2FF;
+  --card-bg: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #eee;
+  --accent-color: #7152F3;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] {
+  --bg-primary: #2C2C3A;
+  --bg-secondary: #363645;
+  --card-bg: #363645;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #454545;
+  --accent-color: #7152F3;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Common component styles */
+.card {
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+html, body {
+  height: 100%;
+  overflow: auto !important;
+}
