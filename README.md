@@ -1,6 +1,6 @@
 # 💼 HR Management System
 
-A modern, full-featured HR management platform built with **React (Vite)** and **Node.js**, designed for seamless employee management and intuitive dashboards — with support for dark mode, real-time search, and smooth performance.
+A modern, full-featured HR management platform built with **React (Vite)** and **Node.js**, designed for seamless employee management and intuitive dashboards — with real-time search, and smooth performance.
 
 ---
 
