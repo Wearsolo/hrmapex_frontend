@@ -1,100 +1,162 @@
-# HR Management System
+# 💼 HR Management System
 
-A modern HR Management System built with React + Vite, featuring a clean and responsive interface for managing employees and HR operations.
+A modern, full-featured HR management platform built with **React (Vite)** and **Node.js**, designed for seamless employee management and intuitive dashboards — with support for dark mode, real-time search, and smooth performance.
 
-## 🚀 Features
+---
 
-- **Employee Management**
-  - View all employees with detailed information
-  - Add, edit, and delete employee records
-  - Filter employees by department and work type
-  - Real-time search functionality
+## ✨ Features
 
-- **Dashboard**
-  - Overview of key HR metrics
-  - Employee statistics
-  - Attendance tracking
-  - Performance indicators
+🔹 **Employee Management**  
+– Add, edit, delete, and filter employees  
+– View detailed employee profiles  
+– Department and work-type filters  
+– Instant keyword search  
 
-- **Smart UI/UX**
-  - Responsive design
-  - Dark/Light mode support
-  - Smooth animations
-  - User-friendly interface
+🔹 **Dashboard**  
+– Visual summary of HR metrics  
+– Attendance and payroll overview  
+– Interactive charts and data cards  
 
-## 🛠️ Tech Stack
+🔹 **Smart UI/UX**  
+– Dark/Light mode toggle  
+– Responsive design (desktop & mobile)  
+– Smooth animations with Framer Motion  
+– Tailwind-powered layout with custom styles  
 
-- React 18
-- Vite
-- Framer Motion
-- React Icons
-- CSS Modules
+---
 
-## 🔧 Installation
+## ⚙️ Tech Stack
 
-1. Clone the repository:
+- ⚛️ React 18 + Vite  
+- 🎨 Tailwind CSS + CSS Modules  
+- 🎞️ Framer Motion  
+- 🌐 Node.js (Express backend)  
+- 🧠 Context API for state management  
+- 🔁 Axios-based services layer  
+
+---
+
+## 📦 Installation & Usage
+
+> Ensure Node.js is installed
+
 ```bash
-git clone https://github.com/...
-```
+# 1. Clone the project
+git clone https://gitlab.com/yourusername/hrmanagement.git
 
-2. Navigate to the project directory:
-```bash
+# 2. Navigate to the project
 cd hrmanagement
-```
 
-3. Install dependencies:
-```bash
+# 3. Install dependencies
 npm install
-```
-4. Start server:
-```bash
+
+# 4. Start backend server
 node server/index.js
-```
-5. Start the development server:
-```bash
+
+# 5. Start frontend development server
 npm run dev
 ```
 
-## 🎨 Color Scheme
+---
 
-- Primary: `#7152F3` (Purple)
-- Background Light: `#FFFFFF`
-- Background Dark: `#2C2C3A`
-- Text Primary Light: `#333333`
-- Text Primary Dark: `#FFFFFF`
-
-## 📁 Project Structure
+## 🗂️ Project Structure
 
 ```
 hrmanagement/
-├── server/
+├── server/                 # Node.js backend (API & logic)
 ├── src/
-│   ├── components/
-│   │   ├── Dashboard/
-│   │   ├── AllEmployees/
-│   │   ├── NewEmployees/
-│   │   ├── SideMenu/
-│   │   ├── Topbar/
-│   │   └── .../
-│   ├── context/
-│   ├── styles/
-│   └── App.jsx
+│   ├── assets/            # Static assets (images, icons)
+│   ├── components/        # All React UI components
+│   ├── context/           # Global state management
+│   ├── database/          # SQL scripts and schema
+│   ├── services/          # API call wrappers (axios)
+│   ├── styles/            # Tailwind + custom styles
+│   ├── App.jsx            # Root React component
+│   ├── main.jsx           # Entry point
+│   └── index.css          # Base styles
+├── uploads/               # User-uploaded files (images/docs)
+├── index.html             # App HTML shell
+├── vite.config.js         # Vite config
 └── README.md
 ```
 
-## 🔑 Key Components
+---
 
-- **Dashboard**: Main overview page with statistics and charts
-- **AllEmployees**: Employee list with filtering and search
-- **NewEmployees**: Form for adding new employee records
-- **SideMenu**: Navigation component with theme toggle
-- **Topbar**: Header with search and user profile
+## 📌 Key Components
+
+- **📊 Dashboard**  
+  Summary page displaying overall HR metrics such as total employees, applicants, disbursements, and leaves. Includes payroll overview charts with filtering.
+
+- **👥 All Employees**  
+  Full list of registered employees with filtering by department and real-time search.
+
+- **💸 Disbursement**  
+  Track and manage employee financial disbursements such as reimbursements, claims, and payouts.
+
+- **📁 Payroll**  
+  Manage base salary, bonuses, and overtime. View monthly breakdowns in a graphical format.
+
+- **📰 News**  
+  Company announcements or HR notices displayed for employees.
+
+- **🌿 Leaves**  
+  View and manage employee leave requests and leave status by type and period.
+
+- **📅 Holidays**  
+  View official holidays and customized company leave days.
+
+- **⚙️ Settings**  
+  Configuration area to manage system preferences, themes (dark/light), and roles.
+
+- **👤 Admin Panel**  
+  Topbar with search, notifications, and user account profile with dropdown options.
+
+---
+
+## 🎨 Theme Colors
+
+| Description        | Color        |
+|--------------------|--------------|
+| Primary (Purple)   | `#7152F3`    |
+| Background Light   | `#FFFFFF`    |
+| Background Dark    | `#2C2C3A`    |
+| Text Light         | `#333333`    |
+| Text Dark          | `#FFFFFF`    |
+
+---
+
+## 🌐 Browser Compatibility
+
+| Browser      | Supported |
+|--------------|-----------|
+| Chrome       | ✅         |
+| Firefox      | ✅         |
+| Edge         | ✅         |
+
+---
+
+## 🤝 Contributing
+
+```bash
+# 1. Fork this repository
+# 2. Create a new branch
+git checkout -b feature/YourFeature
+
+# 3. Make changes and commit
+git commit -m "✨ Add YourFeature"
+
+# 4. Push and open a pull request
+git push origin feature/YourFeature
+```
+
+---
 
 ## 🌐 Browser Support
 
 - Chrome (latest)
-- Firefox (latest)
+- Opera (latest)
 - Edge (latest)
+- Brave (latest)
 
 ## 🤝 Contributing
 
