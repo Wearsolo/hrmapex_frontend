@@ -2,7 +2,7 @@
 
 A modern, full-featured HR management platform built with **React (Vite)** and **Node.js**, designed for seamless employee management and intuitive dashboards — with support for dark mode, real-time search, and smooth performance.
 
---
+---
 
 ## ✨ Features
 
@@ -22,7 +22,7 @@ A modern, full-featured HR management platform built with **React (Vite)** and *
 – Smooth animations with Framer Motion  
 – Tailwind-powered layout with custom styles  
 
----
+
 
 ## ⚙️ Tech Stack
 
@@ -33,7 +33,7 @@ A modern, full-featured HR management platform built with **React (Vite)** and *
 - 🧠 Context API for state management  
 - 🔁 Axios-based services layer  
 
----
+
 
 ## 📦 Installation & Usage
 
@@ -79,7 +79,7 @@ hrmanagement/
 └── README.md
 ```
 
----
+
 
 ## 📌 Key Components
 
@@ -110,7 +110,7 @@ hrmanagement/
 - **👤 Admin Panel**  
   Topbar with search, notifications, and user account profile with dropdown options.
 
----
+
 
 ## 🎨 Theme Colors
 
@@ -122,7 +122,7 @@ hrmanagement/
 | Text Light         | `#333333`    |
 | Text Dark          | `#FFFFFF`    |
 
----
+
 
 ## 🌐 Browser Compatibility
 
@@ -132,7 +132,7 @@ hrmanagement/
 | Firefox      | ✅         |
 | Edge         | ✅         |
 
----
+
 
 ## 🤝 Contributing
 
@@ -148,7 +148,7 @@ git commit -m "✨ Add YourFeature"
 git push origin feature/YourFeature
 ```
 
----
+
 
 ## 🌐 Browser Support
 
