@@ -4,14 +4,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   opacity: 1;
-  transition: opacity 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .popup-overlay.closing {
@@ -20,62 +20,93 @@
 
 .popup-content {
   background: white;
-  padding: 40px;
-  border-radius: 20px;
+  padding: 32px;
+  border-radius: 24px;
   text-align: center;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 360px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   transform: scale(0.7);
   opacity: 0;
-  animation: popIn 0.3s ease forwards;
+  animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.success-icon {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 20px;
+.success-animation {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.checkmark-circle {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  background-color: #7152F3;
+  border-radius: 50%;
+  animation: checkmark-circle 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center;
+}
+
+.checkmark-check {
+  position: absolute;
+  top: 50%;
+  left: 28px;
+  height: 40px;
+  width: 20px;
+  border-right: 4px solid white;
+  border-bottom: 4px solid white;
+  transform: rotate(45deg) translate(-50%, -50%);
+  opacity: 0;
+  animation: checkmark-check 0.4s ease-in-out 0.4s forwards;
 }
 
 .popup-title {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 10px;
-  font-weight: 600;
+  font-size: 28px;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+  font-weight: 700;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.4s;
 }
 
 .popup-message {
   color: #666;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
   font-size: 16px;
+  line-height: 1.6;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.6s;
 }
 
 .back-to-login-button {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   background-color: #7152F3;
   color: white;
   border: none;
-  border-radius: 15px;
+  border-radius: 16px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.8s;
+  box-shadow: 0 4px 12px rgba(113, 82, 243, 0.2);
 }
 
 .back-to-login-button:hover {
   background-color: #6346d7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(113, 82, 243, 0.3);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.back-to-login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(113, 82, 243, 0.2);
 }
 
+/* Animations */
 @keyframes popIn {
   from {
     transform: scale(0.7);
@@ -84,5 +115,42 @@
   to {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes checkmark-circle {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkmark-check {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-50%, -50%) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(45deg) translate(-50%, -50%) scale(1);
   }
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { FaEye, FaEyeSlash, FaRegUser } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import bgDashboard from "../../assets/bgdashboard.png"
+import bgDashboard from "/src/assets/bgdashboard.png"
 import './Login.css'
 
 function Login() {
@@ -114,25 +114,12 @@ function Login() {
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.5 }}
-    >
-      <motion.div 
+    >      <motion.div 
         className="login-left"
         initial={{ x: -50, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <ul className="circles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
         <img src={bgDashboard} alt="Dashboard Preview" className="dashboard-preview" />
       </motion.div>
       

@@ -121,6 +121,34 @@
   opacity: 0.5;
 }
 
+.otp-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
 .login-button {
   width: 100%;
   height: 3.125rem;
@@ -144,44 +172,6 @@
 
 .login-button:active {
   transform: translateY(0);
-}
-
-.login-left .circles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.login-left .circles li {
-  position: absolute;
-  display: block;
-  list-style: none;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.12);
-  animation: animate 25s linear infinite;
-  bottom: -150px;
-  border-radius: 16px;
-}
-
-.login-left .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
-.login-left .circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
-.login-left .circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
-.login-left .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
-.login-left .circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
-.login-left .circles li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
-.login-left .circles li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
-.login-left .circles li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
-.login-left .circles li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
-.login-left .circles li:nth-child(10) { left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; }
-
-@keyframes animate {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 16px; }
-  100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 16px; }
 }
 
 /* Media Queries */

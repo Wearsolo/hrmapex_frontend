@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiEye, FiEdit2, FiTrash2, FiSearch, FiPlus, FiFilter } from 'react-icons/fi'
+import { FiEye, FiEdit2, FiTrash2, FiPlus, FiFilter } from 'react-icons/fi'
 import axios from 'axios'
 import SideMenu from '../SideMenu/Side_menu'
 import Topbar from '../Topbar/Topbar'
 import FilterModal from '../FilterModal/FilterModal'
 import './AllEmployees.css'
+import '../AnimationCircles/AnimationCircles.css'
 
 const AllEmployees = () => {
   const [employees, setEmployees] = useState([])
@@ -15,18 +16,14 @@ const AllEmployees = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    departments: [],
-    type: ''
-  })
+  const [filters, setFilters] = useState({ departments: [], types: [], status: '' })
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [employeeToDelete, setEmployeeToDelete] = useState(null)
   const [selectedDepartments, setSelectedDepartments] = useState([])
   const [isMinimized, setIsMinimized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-  
-  const departments = ['Design', 'Development', 'Sales', 'HR', 'PM', 'BA']
+
   const navigate = useNavigate()
 
   const formatDate = (dateString) => {
@@ -66,9 +63,7 @@ const AllEmployees = () => {
   useEffect(() => {
     const filtered = employees.filter(employee => {
       const searchTerm = search.toLowerCase().trim();
-      
       if (!searchTerm) return true;
-
       const searchableFields = [
         `${employee.FName} ${employee.LName}`,
         employee.Nickname,
@@ -85,7 +80,6 @@ const AllEmployees = () => {
         employee.AccountType,
         employee.AccountHolderName
       ].map(field => (field || '').toString().toLowerCase());
-
       return searchableFields.some(field => field.includes(searchTerm));
     });
 
@@ -93,11 +87,15 @@ const AllEmployees = () => {
       ? filtered 
       : filtered.filter(emp => filters.departments.includes(emp.Department));
 
-    const typeFiltered = !filters.type 
-      ? departmentFiltered 
-      : departmentFiltered.filter(emp => emp.Type === filters.type);
+    const typeFiltered = filters.types && filters.types.length > 0
+      ? departmentFiltered.filter(emp => filters.types.includes(emp.Type))
+      : departmentFiltered;
 
-    setFilteredEmployees(typeFiltered);
+    const statusFiltered = filters.status
+      ? typeFiltered.filter(emp => emp.Status === filters.status)
+      : typeFiltered;
+
+    setFilteredEmployees(statusFiltered);
     setCurrentPage(1);
   }, [search, employees, filters])
 
@@ -106,6 +104,7 @@ const AllEmployees = () => {
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage
   const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee)
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage)
+  const totalItems = filteredEmployees.length
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters)
@@ -148,188 +147,254 @@ const AllEmployees = () => {
 
   const handleReset = () => {
     setSelectedDepartments([])  // reset department
-    setFilters({ departments: [], type: '' })  // reset type
+    setFilters({ departments: [], types: [], status: '' })  // reset type
+  }
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
+
+  const DeleteModal = ({ isOpen, onClose, onConfirm, employeeName }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="delete-modal" onClick={e => e.stopPropagation()}>
+          <div className="delete-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 4.44772 8.44772 4 9 4H15C15.5523 4 16 4.44772 16 5V7M8 7H16" 
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h2>Delete Employee</h2>
+          <p>Are you sure you want to delete {employeeName}? This action cannot be undone.</p>
+          <div className="modal-buttons">
+            <button className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="delete-button" onClick={onConfirm}>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { 
+      opacity: 0
+    },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { 
+      y: 20,
+      opacity: 0
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 12,
+        mass: 0.5
+      }
+    }
   }
 
   return (
-    <div className={`dashboard-container ${deleteModalOpen || isFilterModalOpen ? 'has-popup' : ''}`}>
+    <div className="dashboard-container">
       <SideMenu 
         isMinimized={isMinimized} 
         onToggleMinimize={() => setIsMinimized(!isMinimized)}
       />
-      <div className="dashboard-main">
-        <Topbar pageTitle="All Employees" pageSubtitle="All Employees Information" />
+      <motion.div 
+        className="dashboard-main"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <ul className="circles">
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+        </ul>
+        <ul className="circles-bottom">
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+        </ul>
+
+        <Topbar pageTitle="All Employees" pageSubtitle="Manage employee information" />
+
         <motion.div 
-          className="dashboard-content"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="content-wrapper"
+          variants={itemVariants}
         >
-          <div className="search-actions">
+          <motion.div 
+            className="search-actions"
+            variants={itemVariants}
+          >
             <div className="search-box">
-              <FiSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Search employees..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-
             <div className="action-buttons">
               <button className="add-employee-btn" onClick={() => navigate('/new-employee')}>
-                <FiPlus className="btn-icon" />
-                <span>Add New Employee</span>
+                <FiPlus />
+                Add Employee
               </button>
               <button className="filter-btn" onClick={() => setIsFilterModalOpen(true)}>
-                <FiFilter className="btn-icon" />
-                <span>Filter</span>
+                <FiFilter />
+                Filter
               </button>
             </div>
+          </motion.div>
+
+          <div className="table-container">
+            <motion.table 
+              className="employees-table"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Position</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentEmployees.map((employee) => (
+                  <motion.tr 
+                    key={employee.EmployeeId}
+                    variants={itemVariants}
+                  >
+                    <td className="employee-name">
+                      <img
+                        src={employee.ImageUrl || '/src/assets/profile.png'}
+                        alt={employee.FName}
+                        onError={(e) => {e.target.src = '/src/assets/profile.png'}}
+                      />
+                      <div className="name-info">
+                        <span>{`${employee.FName} ${employee.LName}`}</span>
+                        {employee.Nickname && <span className="nickname">({employee.Nickname})</span>}
+                      </div>
+                    </td>
+                    <td>{employee.Email || '-'}</td>
+                    <td>{employee.MobileNumber || '-'}</td>
+                    <td>{employee.Position || '-'}</td>
+                    <td>
+                      <span className={`type-badge type-${employee.Type?.toLowerCase()}`}>
+                        {employee.Type}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status ${employee.Status?.toLowerCase()}`}>
+                        {employee.Status}
+                      </span>
+                    </td>
+                    <td className="actions">
+                      <button onClick={() => navigate(`/employee/${employee.EmployeeId}`)}>
+                        <FiEye />
+                      </button>
+                      <button onClick={() => navigate(`/employee/${employee.EmployeeId}?edit=true`)}>
+                        <FiEdit2 />
+                      </button>
+                      <button onClick={() => handleDeleteClick(employee)}>
+                        <FiTrash2 />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </motion.table>
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
+          <motion.div 
+            className="table-footer"
+            variants={itemVariants}
+          >
+            <div className="items-per-page">
+              <span>Show</span>
+              <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={30}>30</option>
+                <option value={50}>50</option>
+              </select>
+              <span>entries</span>
             </div>
-          )}
 
-          {isLoading ? (
-            <div className="loading-spinner">Loading...</div>
-          ) : (
-            <>
-              <div className="employees-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Employee Name (Nickname)</th>
-                      <th>Email</th>
-                      <th>Department</th>
-                      <th>Position</th>
-                      <th>Start Date</th>
-                      <th>Type</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentEmployees.length === 0 ? (
-                      <tr>
-                        <td colSpan="8" className="no-data">
-                          No employees found
-                        </td>
-                      </tr>
-                    ) : (
-                      currentEmployees.map((employee, index) => (
-                        <tr key={employee.EmployeeId || index}>
-                          <td className="employee-name">
-                            <img 
-                              src={employee.ImageUrl || '/src/assets/profile.png'} 
-                              alt={employee.Name} 
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = '/src/assets/profile.png';
-                              }}
-                            />
-                            <div className="name-info">
-                              <span>{`${employee.FName} ${employee.LName}`}</span>
-                              <span className="nickname">({employee.Nickname || '-'})</span>
-                            </div>
-                          </td>
-                          <td>{employee.Email}</td>
-                          <td>{employee.Department}</td>
-                          <td>{employee.Position}</td>
-                          <td>{formatDate(employee.StartDate)}</td>
-                          <td>{employee.Type}</td>
-                          <td>
-                            <span className={`status ${(employee.Status || '').toLowerCase()}`}>
-                              {employee.Status}
-                            </span>
-                          </td>
-                          <td className="actions">
-                            <button title="View" onClick={() => navigate(`/employee/${employee.EmployeeId}`)}>
-                              <FiEye />
-                            </button>
-                            <button title="Edit" onClick={() => navigate(`/employee/${employee.EmployeeId}?edit=true`)}>
-                              <FiEdit2 />
-                            </button>
-                            <button title="Delete" onClick={() => handleDeleteClick(employee)} className="delete-btn">
-                              <FiTrash2 />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="table-footer">
-                <div className="items-per-page">
-                  <span>Showing</span>
-                  <select 
-                    value={itemsPerPage}
-                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                    /* Add more options as needed */
-                  </select>
-                  <span>out of {filteredEmployees.length} records</span>
-                </div>
-                <div className="pagination">
-                  <button 
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
-                    &lt;
-                  </button>
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={currentPage === i + 1 ? 'active' : ''}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                  <button 
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
-                    &gt;
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {isFilterModalOpen && (
-            <FilterModal 
-              isOpen={isFilterModalOpen}
-              onClose={() => setIsFilterModalOpen(false)}
-              onApply={handleApplyFilters}
-            />
-          )}
-
-          {deleteModalOpen && (
-            <div className="modal-overlay">
-              <div className="delete-modal">
-                <h3>Confirm Delete</h3>
-                <p>Are you sure you want to delete employee "{employeeToDelete ? `${employeeToDelete.FName} ${employeeToDelete.LName}` : ''}"?</p>
-                <p>This action cannot be undone.</p>
-                <div className="modal-actions">
-                  <button className="cancel-btn" onClick={handleCancelDelete}>Cancel</button>
-                  <button className="delete-btn" onClick={handleConfirmDelete}>Delete</button>
-                </div>
-              </div>
+            <div className="pagination">
+              <button onClick={() => handlePageChange(1)} disabled={currentPage === 1}>
+                {'<<'}
+              </button>
+              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                {'<'}
+              </button>
+              <button className="active">{currentPage}</button>
+              {currentPage < totalPages && (
+                <button onClick={() => handlePageChange(currentPage + 1)}>
+                  {currentPage + 1}
+                </button>
+              )}
+              <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                {'>'}
+              </button>
+              <button onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>
+                {'>>'}
+              </button>
             </div>
-          )}
+          </motion.div>
         </motion.div>
-      </div>
-    </div>
-  )
-}
+      </motion.div>
 
-export default AllEmployees
+      {/* Filter Modal */}
+      {isFilterModalOpen && (
+        <FilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          onApply={handleApplyFilters}
+          initialFilters={filters}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          employeeName={`${employeeToDelete?.FName} ${employeeToDelete?.LName}`}
+        />
+      )}
+    </div>
+  );
+};
+
+export default AllEmployees;

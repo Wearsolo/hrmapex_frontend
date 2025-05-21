@@ -1,110 +1,131 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FiUser, FiBriefcase, FiFile, FiLock, FiUpload, FiDollarSign } from 'react-icons/fi'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FiUser, FiUpload, FiFile, FiCheck } from 'react-icons/fi'
 import SideMenu from '../SideMenu/Side_menu'
 import Topbar from '../Topbar/Topbar'
 import './NewEmployees.css'
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion'
-import { createEmployee } from '../../services/employeeService';
+import '../AnimationCircles/AnimationCircles.css'
+import axios from 'axios'
+import { motion } from 'framer-motion'
 
-const statusOptions = [
-  'Permanent',
-  'Probation', 
-  'Contract',
-  'Intern'
-];
-
-const typeOptions = [
-  'Office',
-  'WorkFromHome',
-  'Hybrid'
-];
-
-// เพิ่มฟังก์ชันสำหรับจัดรูปแบบวันที่และเวลา
-const formatDateTime = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
+const truncateFileName = (fileName) => {
+  if (!fileName) return '';
+  if (fileName.length <= 25) return fileName;
+  const extension = fileName.split('.').pop();
+  const name = fileName.substring(0, fileName.lastIndexOf('.'));
+  return `${name.substring(0, 15)}...${extension}`;
 };
 
-function NewEmployees() {
-  const [activeTab, setActiveTab] = useState('personal')
+const NewEmployees = () => {
   const [formData, setFormData] = useState({
+    // Personal Information
     profileImage: null,
     firstName: '',
     lastName: '',
-    nickname: '',      // เพิ่มตรงนี้
-    age: '',           // เพิ่มตรงนี้
+    nickname: '',
+    age: '',
     email: '',
     phone: '',
     dob: '',
     gender: '',
+    religion: '',
     maritalStatus: '',
     nationality: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    employeeId: '',
-    userName: '',
+    currentAddress: '',
+    currentSubdistrict: '',
+    currentDistrict: '',
+    currentProvince: '',
+    currentZipCode: '',
+    idCardAddress: '',
+    idCardSubdistrict: '',
+    idCardDistrict: '',
+    idCardProvince: '',
+    idCardZipCode: '',
+
+    // Professional Information
     department: '',
     position: '',
-    status: '',
     type: '',
+    status: '',
     startDate: '',
     salary: '',
-    employeeType: '',
-    designation: '',
-    supervisor: '',
-    employeeStatus: '',
-    workingDays: '',
-    joiningDate: '',
-    officeLocation: '',
+
+    // Bank Information
     bankName: '',
     accountHolderName: '',
     accountNumber: '',
-    accountType: '',
     bankCode: '',
-    bankStatus: '',
-    lastUpdated: '',
-    slackId: '',
-    skypeId: '',
-    githubId: '',
-    workHistory: [
-      { company: '', position: '', start: '', end: '' }
-    ]
+
+    // Family Information
+    fatherName: '',
+    fatherAge: '',
+    fatherOccupation: '',
+    motherName: '',
+    motherAge: '',
+    motherOccupation: '',
+    spouseName: '',
+    spouseAge: '',
+    spouseOccupation: '',
+    numberOfChildren: '',
+    birthOrder: '',
+    totalSiblings: '',
+    numberOfBrothers: '',
+    numberOfSisters: '',
+
+    // Work & Education History
+    workHistory: [{ company: '', position: '', start: '', end: '', salary: '', description: '' }],
+    educationHistory: [{ level: '', field: '', institution: '', graduationYear: '' }],
+
+    // Language Ability
+    speaking: '',
+    writing: '',
+    reading: '',
+
+    // Criminal/Civil Record
+    hasCriminalRecord: '',
+    criminalDetails: '',
+
+    // Emergency Contact
+    emergencyContactName: '',
+    emergencyContactRelation: '',
+    emergencyContactAddress: '',
+    emergencyContactPhone: '',
+
+    // Documents
+    jobApplication: null,
+    employmentContract: null,
+    certificate: null,
+    nationalId: null,
+    householdRegistration: null,
+    bankBook: null,
+    documents: null,
+
+    // Work Relocation
+    canRelocate: '',
   })
 
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-
+  const [errors, setErrors] = useState({})
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const navigate = useNavigate()
-
-  // เพิ่ม state สำหรับ confirmation popup
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-    setTouched(prev => ({
-      ...prev,
-      [name]: true
-    }))
-    
-    // Clear error when field is updated
-    if (errors[name]) {
-      setErrors(prev => ({
+    setFormData(prev => {
+      // Clear criminal details if hasCriminalRecord is set to 'no'
+      if (name === 'hasCriminalRecord' && value === 'no') {
+        return {
+          ...prev,
+          [name]: value,
+          criminalDetails: ''
+        }
+      }
+      return {
         ...prev,
-        [name]: ''
-      }))
+        [name]: value
+      }
+    })
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
@@ -123,953 +144,127 @@ function NewEmployees() {
   }
 
   const handleFileUpload = (e, fieldName) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          [fieldName]: reader.result
-        }))
-      }
-      reader.readAsDataURL(file)
+    const files = e.target.files
+    if (files) {
+      const fileArray = Array.from(files)
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: prev[fieldName] ? [...prev[fieldName], ...fileArray] : fileArray
+      }))
     }
   }
 
-  const handleWorkHistoryChange = (idx, field, value) => {
-    setFormData(prev => {
-      const updated = [...prev.workHistory];
-      updated[idx][field] = value;
-      return { ...prev, workHistory: updated };
-    });
-  };
+  const handleRemoveFile = (fieldName, index) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: prev[fieldName].filter((_, i) => i !== index)
+    }))
+  }
 
+  const handleWorkHistoryChange = (idx, field, value) => {
+    const updated = [...formData.workHistory]
+    updated[idx][field] = value
+    setFormData(prev => ({ ...prev, workHistory: updated }))
+  }
+
+  const handleEducationChange = (idx, field, value) => {
+    const updated = [...formData.educationHistory]
+    updated[idx][field] = value
+    setFormData(prev => ({ ...prev, educationHistory: updated }))
+  }
   const handleAddWorkHistory = () => {
     setFormData(prev => ({
       ...prev,
-      workHistory: [...prev.workHistory, { company: '', position: '', start: '', end: '' }]
-    }));
-  };
+      workHistory: [...prev.workHistory, { company: '', position: '', start: '', end: '', salary: '', description: '' }]
+    }))
+  }
+
+  const handleAddEducation = () => {
+    setFormData(prev => ({
+      ...prev,
+      educationHistory: [...prev.educationHistory, { level: '', field: '', institution: '', graduationYear: '' }]
+    }))
+  }
 
   const handleRemoveWorkHistory = (idx) => {
     setFormData(prev => ({
       ...prev,
       workHistory: prev.workHistory.filter((_, i) => i !== idx)
-    }));
-  };
+    }))
+  }
 
-  const handleCancel = () => {
+  const handleRemoveEducation = (idx) => {
+    setFormData(prev => ({
+      ...prev,
+      educationHistory: prev.educationHistory.filter((_, i) => i !== idx)
+    }))
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    
+    // Validate Personal Information
+    if (!formData.firstName) newErrors.firstName = 'First Name is required'
+    if (!formData.lastName) newErrors.lastName = 'Last Name is required'
+    if (!formData.email) newErrors.email = 'Email is required'
+    if (!formData.phone) newErrors.phone = 'Phone is required'
+    if (!formData.dob) newErrors.dob = 'Date of Birth is required'
+    
+    // Validate Professional Information
+    if (!formData.position) newErrors.position = 'Position is required'
+    if (!formData.type) newErrors.type = 'Type is required'
+    if (!formData.status) newErrors.status = 'Status is required'
+    if (!formData.startDate) newErrors.startDate = 'Start Date is required'
+    if (!formData.salary) newErrors.salary = 'Salary is required'
+    
+    // Validate Bank Information
+    if (!formData.bankName) newErrors.bankName = 'Bank Name is required'
+    if (!formData.accountNumber) newErrors.accountNumber = 'Account Number is required'
+    if (formData.accountNumber && !/^\d{10,12}$/.test(formData.accountNumber)) {
+      newErrors.accountNumber = 'Account Number must be 10-12 digits'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateForm()) {
+      window.scrollTo({
+        top: document.querySelector('.error-text')?.offsetTop - 100,
+        behavior: 'smooth'
+      })
+      return
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/api/employees', formData)
+      if (response.data.employeeId) {
+        setShowSuccessPopup(true)
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert('Failed to add employee. Please try again.')
+    }
+  }
+
+  const handleSuccessClose = () => {
+    setShowSuccessPopup(false)
     navigate('/employees')
   }
 
-  const handleBack = () => {
-    switch (activeTab) {
-      case 'professional':
-        setActiveTab('personal')
-        break
-      case 'documents':
-        setActiveTab('professional')
-        break
-      case 'bank':
-        setActiveTab('documents')
-        break
-      case 'account':
-        setActiveTab('bank')
-        break
-      default:
-        setActiveTab('personal')
-    }
-  }
-
-  const handleTabChange = (newTab) => {
-    if (!validateTab(activeTab)) {
-      // Scroll to the first error field
-      const firstError = Object.keys(errors)[0];
-      const errorElement = document.getElementsByName(firstError)[0];
-      if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        errorElement.focus();
-      }
-      return;
-    }
-
-    // ตรวจสอบลำดับของ tab
-    const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-    const newIndex = tabs.findIndex(tab => tab.id === newTab);
-
-    // อนุญาตให้ย้อนกลับไปยัง tab ก่อนหน้าได้เสมอ
-    if (newIndex < currentIndex) {
-      setActiveTab(newTab);
-      return;
-    }
-
-    // สำหรับการไปข้างหน้า ต้องไปทีละ tab
-    if (newIndex === currentIndex + 1) {
-      setActiveTab(newTab);
-    }
-  };
-
-  const validateTab = (tabName) => {
-    const newErrors = {};
-    
-    switch (tabName) {
-      case 'personal':
-        if (!formData.firstName.trim()) newErrors.firstName = 'First Name is required';
-        if (!formData.lastName.trim()) newErrors.lastName = 'Last Name is required';
-        if (!formData.phone.trim()) newErrors.phone = 'Mobile Number is required';
-        if (!formData.email.trim()) newErrors.email = 'Email is required';
-        if (!formData.dob) newErrors.dob = 'Date of Birth is required';
-        if (!formData.gender) newErrors.gender = 'Gender is required';
-        if (!formData.nationality) newErrors.nationality = 'Nationality is required';
-        if (!formData.city) newErrors.city = 'City is required';
-        if (!formData.state) newErrors.state = 'State is required';
-        if (!formData.zipCode) newErrors.zipCode = 'ZIP Code is required';
-        break;
-
-      case 'professional':
-        if (!formData.department) newErrors.department = 'Department is required';
-        if (!formData.position) newErrors.position = 'Position is required';
-        if (!formData.status) newErrors.status = 'Employee Status is required';
-        if (!formData.type) newErrors.type = 'Type is required';
-        if (!formData.startDate) newErrors.startDate = 'Start Date is required';
-        if (!formData.salary) newErrors.salary = 'Salary is required';
-        break;
-
-      case 'bank':
-        if (!formData.bankName) newErrors.bankName = 'Bank Name is required';
-        if (!formData.accountHolderName) newErrors.accountHolderName = 'Account Holder Name is required';
-        if (!formData.accountNumber) newErrors.accountNumber = 'Account Number is required';
-        if (!formData.accountType) newErrors.accountType = 'Account Type is required';
-        if (!formData.bankCode) newErrors.bankCode = 'Bank Code is required';
-        if (!formData.bankStatus) newErrors.bankStatus = 'Status is required';
-        
-        // ตรวจสอบรูปแบบเลขบัญชี (ตัวเลข 10-12 หลัก)
-        if (formData.accountNumber && !/^\d{10,12}$/.test(formData.accountNumber)) {
-          newErrors.accountNumber = 'Account Number must be 10-12 digits';
-        }
-        break;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNext = () => {
-    if (!validateTab(activeTab)) {
-      // Scroll to the first error field
-      const firstError = Object.keys(errors)[0];
-      const errorElement = document.getElementsByName(firstError)[0];
-      if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        errorElement.focus();
-      }
-      return;
-    }
-
-    switch (activeTab) {
-      case 'personal':
-        setActiveTab('professional');
-        break;
-      case 'professional':
-        setActiveTab('documents');
-        break;
-      case 'documents':
-        setActiveTab('bank');
-        break;
-      case 'bank':
-        setActiveTab('account');
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowConfirmation(true);
-  };
-
-  // เพิ่มฟังก์ชันสำหรับ confirm การเพิ่มข้อมูล
-  const handleConfirmSubmit = async () => {
-    try {
-      const employeeData = {
-        // Personal Information
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        nickname: formData.nickname,
-        age: parseInt(formData.age),
-        email: formData.email,
-        phone: formData.phone,
-        dob: formData.dob,
-        gender: formData.gender,
-        maritalStatus: formData.maritalStatus,
-        nationality: formData.nationality,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
-        profileImage: formData.profileImage,
-
-        // Professional Information
-        department: formData.department,
-        position: formData.position,
-        type: formData.type,
-        status: formData.status,
-        startDate: formData.startDate,
-        salary: parseFloat(formData.salary),
-
-        // Bank Information
-        bankName: formData.bankName,
-        accountHolderName: formData.accountHolderName,
-        accountNumber: formData.accountNumber,
-        accountType: formData.accountType,
-        bankCode: formData.bankCode,
-        bankStatus: formData.bankStatus,
-
-        // Account Access
-        slackId: formData.slackId,
-        skypeId: formData.skypeId,
-        githubId: formData.githubId
-      };
-
-      // Save to database
-      const response = await axios.post('http://localhost:3001/api/employees', employeeData);
-      
-      if (response.data.employeeId) {
-        // Redirect without showing alert
-        setShowConfirmation(false);
-        navigate('/employees');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to add employee. Please try again.');
-    }
-  };
-
-  const handleSalaryChange = (operation) => {
-    const currentSalary = Number(formData.salary || 0);
-    const newSalary = operation === '+' ? currentSalary + 1000 : currentSalary - 1000;
-    if (newSalary >= 0) {
-      setFormData(prev => ({ ...prev, salary: newSalary }));
-    }
-  };
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'personal':
-        return (
-          <div className="form-container">
-            <div className="profile-upload">
-              <input
-                type="file"
-                id="profile-image"
-                accept="image/*"
-                onChange={handleImageUpload}
-                hidden
-              />
-              <label htmlFor="profile-image" className="upload-area">
-                {formData.profileImage ? (
-                  <img src={formData.profileImage} alt="Profile" />
-                ) : (
-                  <FiUser />
-                )}
-              </label>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label>First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="Enter first name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-                {errors.firstName && <span className="error-text">{errors.firstName}</span>}
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Enter last name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-                {errors.lastName && <span className="error-text">{errors.lastName}</span>}
-              </div>
-              {/* เพิ่มช่องกรอกชื่อเล่น */}
-              <div className="form-group">
-                <label>Nickname</label>
-                <input
-                  type="text"
-                  name="nickname"
-                  placeholder="Enter nickname"
-                  value={formData.nickname}
-                  onChange={handleChange}
-                />
-              </div>
-              {/* เพิ่มช่องกรอกอายุ */}
-              <div className="form-group">
-                <label>Age</label>
-                <input
-                  type="number"
-                  name="age"
-                  placeholder="Enter age"
-                  value={formData.age}
-                  onChange={handleChange}
-                  min="0"
-                />
-              </div>
-              <div className="form-group">
-                <label>Mobile Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Enter mobile number"
-                  value={formData.phone}
-                  onChange={handleChange}
-                />
-                {errors.phone && <span className="error-text">{errors.phone}</span>}
-              </div>
-              <div className="form-group">
-                <label>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter email address"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-                {errors.email && <span className="error-text">{errors.email}</span>}
-              </div>
-              <div className="form-group">
-                <label>Date of Birth</label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={formData.dob}
-                  onChange={handleChange}
-                />
-                {errors.dob && <span className="error-text">{errors.dob}</span>}
-              </div>
-              <div className="form-group">
-                <label>Marital Status</label>
-                <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange}>
-                  <option value="">Select marital status</option>
-                  <option value="single">Single</option>
-                  <option value="married">Married</option>
-                  <option value="divorced">Divorced</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Gender</label>
-                <select name="gender" value={formData.gender} onChange={handleChange}>
-                  <option value="">Select gender</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-                {errors.gender && <span className="error-text">{errors.gender}</span>}
-              </div>
-              <div className="form-group">
-                <label>Nationality</label>
-                <input
-                  type="text"
-                  name="nationality"
-                  placeholder="Enter nationality"
-                  value={formData.nationality}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.nationality && <span className="error-text">{errors.nationality}</span>}
-              </div>
-            </div>
-
-            <div className="form-group full-width">
-              <label>Address</label>
-              <input
-                type="text"
-                name="address"
-                placeholder="Enter street address"
-                value={formData.address}
-                onChange={handleChange}
-              />
-              {errors.address && <span className="error-text">{errors.address}</span>}
-            </div>
-
-            <div className="form-grid three-columns">
-              <div className="form-group">
-                <label>City</label>
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="Enter city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.city && <span className="error-text">{errors.city}</span>}
-              </div>
-              <div className="form-group">
-                <label>State</label>
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="Enter state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.state && <span className="error-text">{errors.state}</span>}
-              </div>
-              <div className="form-group">
-                <label>ZIP Code</label>
-                <input
-                  type="text"
-                  name="zipCode"
-                  placeholder="Enter ZIP code"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.zipCode && <span className="error-text">{errors.zipCode}</span>}
-              </div>
-            </div>
-          </div>
-        )
-      case 'professional':
-        return (
-          <div className="form-container">
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Department</label>
-                <select
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Department</option>
-                  <option value="Development">Development</option>
-                  <option value="Design">Design</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Sales">Sales</option>
-                  <option value="HR">HR</option>
-                </select>
-                {errors.department && <span className="error-text">{errors.department}</span>}
-              </div>
-              <div className="form-group">
-                <label>Position</label>
-                <input
-                  type="text"
-                  name="position"
-                  placeholder="Enter Position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.position && <span className="error-text">{errors.position}</span>}
-              </div>
-              <div className="form-group">
-                <label>Employee Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Status</option>
-                  {statusOptions.map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
-                {errors.status && <span className="error-text">{errors.status}</span>}
-              </div>
-              <div className="form-group">
-                <label>Type</label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Type</option>
-                  {typeOptions.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-                {errors.type && <span className="error-text">{errors.type}</span>}
-              </div>
-            </div>
-            
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Start Date</label>
-                <input
-                  type="date"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.startDate && <span className="error-text">{errors.startDate}</span>}
-              </div>
-              <div className="form-group">
-                <label>Salary</label>
-                <div className="salary-input-group">
-                  <button type="button" className="salary-btn decrease" onClick={() => handleSalaryChange('-')}>-</button>
-                  <input
-                    type="number"
-                    name="salary"
-                    value={formData.salary}
-                    onChange={(e) => handleChange(e)}
-                    placeholder="Enter Salary"
-                    min="0"
-                    required
-                  />
-                  <button type="button" className="salary-btn increase" onClick={() => handleSalaryChange('+')}>+</button>
-                </div>
-                {errors.salary && <span className="error-text">{errors.salary}</span>}
-              </div>
-            </div>
-
-            <div className="work-history-section">
-              <h4 style={{ margin: '1.5rem 0 0.5rem 0' }}>Work History</h4>
-              <table className="work-history-table">
-                <thead>
-                  <tr>
-                    <th>Company</th>
-                    <th>Position</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {formData.workHistory.map((row, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        <input
-                          type="text"
-                          name={`company-${idx}`}
-                          placeholder="Company"
-                          value={row.company}
-                          onChange={e => handleWorkHistoryChange(idx, 'company', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name={`position-${idx}`}
-                          placeholder="Position"
-                          value={row.position}
-                          onChange={e => handleWorkHistoryChange(idx, 'position', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="date"
-                          name={`start-${idx}`}
-                          value={row.start}
-                          onChange={e => handleWorkHistoryChange(idx, 'start', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="date"
-                          name={`end-${idx}`}
-                          value={row.end}
-                          onChange={e => handleWorkHistoryChange(idx, 'end', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        {formData.workHistory.length > 1 && (
-                          <button
-                            type="button"
-                            className="btn-remove-row"
-                            onClick={() => handleRemoveWorkHistory(idx)}
-                            style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
-                            title="Remove"
-                          >
-                            &times;
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button
-                type="button"
-                className="btn-add-row"
-                onClick={handleAddWorkHistory}
-                style={{
-                  marginTop: '0.75rem',
-                  background: '#7152f3',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '0.4rem 1.2rem',
-                  fontWeight: 500,
-                  cursor: 'pointer'
-                }}
-              >
-                + Add more
-              </button>
-            </div>
-          </div>
-        );
-      case 'documents':
-        return (
-          <div className="form-container">
-            <div className="documents-grid">
-              {/* Upload Job Application Form */}
-              <div className="document-upload">
-                <h3>Job Application Form</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="job-application"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'jobApplication')}
-                    hidden
-                  />
-                  <label htmlFor="job-application" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-
-              {/* Upload Employment Contract */}
-              <div className="document-upload">
-                <h3>Employment Contract</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="employment-contract"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'employmentContract')}
-                    hidden
-                  />
-                  <label htmlFor="employment-contract" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-
-              {/* Upload Certificate of Qualification */}
-              <div className="document-upload">
-                <h3>Certificate of Qualification</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="certificate"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'certificate')}
-                    hidden
-                  />
-                  <label htmlFor="certificate" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-
-              {/* Upload National ID Card */}
-              <div className="document-upload">
-                <h3>Copy of National ID Card</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="national-id"
-                    accept=".pdf,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'nationalId')}
-                    hidden
-                  />
-                  <label htmlFor="national-id" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-
-              {/* Upload Household Registration */}
-              <div className="document-upload">
-                <h3>Household Registration Document</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="household-registration"
-                    accept=".pdf,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'householdRegistration')}
-                    hidden
-                  />
-                  <label htmlFor="household-registration" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-
-              {/* Upload Bank Account Book */}
-              <div className="document-upload">
-                <h3>Bank Account Book</h3>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="bank-book"
-                    accept=".pdf,.jpg,.jpeg"
-                    onChange={(e) => handleFileUpload(e, 'bankBook')}
-                    hidden
-                  />
-                  <label htmlFor="bank-book" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats : .jpeg, .pdf</p>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      case 'account':
-        return (
-          <div className="form-container">
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter Email Address"
-                  value={formData.email}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Slack ID</label>
-                <input
-                  type="text"
-                  name="slackId"
-                  placeholder="Enter Slack ID"
-                  value={formData.slackId}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Skype ID</label>
-                <input
-                  type="text"
-                  name="skypeId"
-                  placeholder="Enter Skype ID"
-                  value={formData.skypeId}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Github ID</label>
-                <input
-                  type="text"
-                  name="githubId"
-                  placeholder="Enter Github ID"
-                  value={formData.githubId}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-          </div>
-        )
-      case 'bank':
-        return (
-          <div className="form-container">
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Bank Name</label>
-                <select 
-                  name="bankName" 
-                  value={formData.bankName} 
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Bank</option>
-                  <option value="bangkok-bank">Bangkok Bank</option>
-                  <option value="kasikorn-bank">Kasikorn Bank</option>
-                  <option value="scb">Siam Commercial Bank</option>
-                  <option value="ktb">Krung Thai Bank</option>
-                </select>
-                {errors.bankName && <span className="error-text">{errors.bankName}</span>}
-              </div>
-              <div className="form-group">
-                <label>Account Holder Name</label>
-                <input
-                  type="text"
-                  name="accountHolderName"
-                  placeholder="Enter Account Holder Name"
-                  value={formData.accountHolderName}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.accountHolderName && <span className="error-text">{errors.accountHolderName}</span>}
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Account Number</label>
-                <input
-                  type="text"
-                  name="accountNumber"
-                  placeholder="Enter Account Number"
-                  value={formData.accountNumber}
-                  onChange={handleChange}
-                  pattern="\d{10,12}"
-                  required
-                />
-                {errors.accountNumber && <span className="error-text">{errors.accountNumber}</span>}
-              </div>
-              <div className="form-group">
-                <label>Account Type</label>
-                <select 
-                  name="accountType" 
-                  value={formData.accountType} 
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Account Type</option>
-                  <option value="savings">Savings</option>
-                  <option value="current">Current</option>
-                </select>
-                {errors.accountType && <span className="error-text">{errors.accountType}</span>}
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Bank Code</label>
-                <input
-                  type="text"
-                  name="bankCode"
-                  placeholder="Enter Bank Code"
-                  value={formData.bankCode}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.bankCode && <span className="error-text">{errors.bankCode}</span>}
-              </div>
-              <div className="form-group">
-                <label>Status</label>
-                <select 
-                  name="bankStatus" 
-                  value={formData.bankStatus} 
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                {errors.bankStatus && <span className="error-text">{errors.bankStatus}</span>}
-              </div>
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Last Updated</label>
-                <input
-                  type="datetime-local"
-                  name="lastUpdated"
-                  value={formatDateTime()}
-                  readOnly
-                  disabled
-                  style={{ 
-                    backgroundColor: 'var(--bg-secondary)', 
-                    cursor: 'not-allowed',
-                    opacity: 0.7 
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )
-      default:
-        return null
-    }
-  }
-
-  const tabs = [
-    { id: 'personal', label: 'Personal Information', icon: <FiUser /> },
-    { id: 'professional', label: 'Professional Information', icon: <FiBriefcase /> },
-    { id: 'documents', label: 'Documents', icon: <FiFile /> },
-    { id: 'bank', label: 'Bank Information', icon: <FiDollarSign /> },
-    { id: 'account', label: 'Account Access', icon: <FiLock /> }
-  ];
-
-  // เพิ่ม CSS สำหรับปุ่มและ popup
-  const styles = {
-    submitButton: {
-      backgroundColor: '#4CAF50',
-      color: 'white',
-      padding: '0.75rem 1.5rem',
-      borderRadius: '8px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: '500',
-      transition: 'all 0.3s ease',
-    },
-    confirmationOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    },
-    confirmationModal: {
-      backgroundColor: 'var(--bg-primary)',
-      padding: '2rem',
-      borderRadius: '12px',
-      width: '400px',
-      textAlign: 'center',
-    }
-  };
-
   return (
     <div className="dashboard-container">
-      <SideMenu />
       <div className="dashboard-main">
-        <Topbar 
-          pageTitle="Add New Employee" 
-          pageSubtitle="All Employee>Add New Employee" 
-        />
+        <ul className="circles">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((n) => (
+            <li key={n}></li>
+          ))}
+        </ul>
+        
+        <SideMenu />
+        <Topbar pageTitle="Add New Employee" pageSubtitle="Add New Employee Information" />
         
         <motion.div 
           className="dashboard-content"
@@ -1077,97 +272,1264 @@ function NewEmployees() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="tabs-container">
-            <div className="tabs">
-              {tabs.map((tab) => (
-                <motion.button
-                  key={tab.id}
-                  className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                  onClick={() => handleTabChange(tab.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  disabled={
-                    // ปิดการคลิก tab ที่อยู่ห่างเกินกว่า 1 ลำดับ
-                    tabs.findIndex(t => t.id === tab.id) > 
-                    tabs.findIndex(t => t.id === activeTab) + 1
-                  }
-                >
-                  {tab.icon}
-                  {tab.label}
-                </motion.button>
-              ))}
+          <form onSubmit={handleSubmit} className="employee-form">
+            {/* Personal Information Section */}
+            <div className="form-section">
+              <h2 className="section-title">Personal Information</h2>
+              
+              <div className="profile-upload">
+                <input
+                  type="file"
+                  id="profile-image"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  hidden
+                />
+                <label htmlFor="profile-image" className="upload-area">
+                  {formData.profileImage ? (
+                    <img src={formData.profileImage} alt="Profile" />
+                  ) : (
+                    <FiUser />
+                  )}
+                </label>
+              </div>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>First Name <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="Enter first name"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                  />
+                  {errors.firstName && <span className="error-text">{errors.firstName}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Last Name <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Enter last name"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                  />
+                  {errors.lastName && <span className="error-text">{errors.lastName}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Nickname</label>
+                  <input
+                    type="text"
+                    name="nickname"
+                    placeholder="Enter nickname"
+                    value={formData.nickname}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Email <span className="required">*</span></label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+                  {errors.email && <span className="error-text">{errors.email}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Phone <span className="required">*</span></label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Enter phone number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                  {errors.phone && <span className="error-text">{errors.phone}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Date of Birth <span className="required">*</span></label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleChange}
+                  />
+                  {errors.dob && <span className="error-text">{errors.dob}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Gender</label>
+                  <select name="gender" value={formData.gender} onChange={handleChange}>
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Marital Status</label>
+                  <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange}>
+                    <option value="">Select status</option>
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="divorced">Divorced</option>
+                  </select>
+                </div>              </div>
+              
+              <div className="form-group full-width">
+                <div className="addresses-container">
+                  <div className="address-section">
+                    <h3>ที่อยู่ตามบัตรประชาชน</h3>
+                    <div className="form-group full-width">
+                      <label>ที่อยู่</label>
+                      <textarea
+                        name="idCardAddress"
+                        placeholder="กรุณากรอกที่อยู่ตามบัตรประชาชน"
+                        value={formData.idCardAddress}
+                        onChange={handleChange}
+                        rows="3"
+                      />
+                    </div>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>แขวง/ตำบล</label>
+                        <input
+                          type="text"
+                          name="idCardSubdistrict"
+                          placeholder="กรุณากรอกแขวง/ตำบล"
+                          value={formData.idCardSubdistrict}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>เขต/อำเภอ</label>
+                        <input
+                          type="text"
+                          name="idCardDistrict"
+                          placeholder="กรุณากรอกเขต/อำเภอ"
+                          value={formData.idCardDistrict}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>จังหวัด</label>
+                        <input
+                          type="text"
+                          name="idCardProvince"
+                          placeholder="กรุณากรอกจังหวัด"
+                          value={formData.idCardProvince}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>รหัสไปรษณีย์</label>
+                        <input
+                          type="text"
+                          name="idCardZipCode"
+                          placeholder="กรุณากรอกรหัสไปรษณีย์"
+                          value={formData.idCardZipCode}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="address-section">
+                    <h3>ที่อยู่ปัจจุบัน</h3>
+                    <div className="form-group full-width">
+                      <label>ที่อยู่</label>
+                      <textarea
+                        name="currentAddress"
+                        placeholder="กรุณากรอกที่อยู่ปัจจุบัน"
+                        value={formData.currentAddress}
+                        onChange={handleChange}
+                        rows="3"
+                      />
+                    </div>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>แขวง/ตำบล</label>
+                        <input
+                          type="text"
+                          name="currentSubdistrict"
+                          placeholder="กรุณากรอกแขวง/ตำบล"
+                          value={formData.currentSubdistrict}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>เขต/อำเภอ</label>
+                        <input
+                          type="text"
+                          name="currentDistrict"
+                          placeholder="กรุณากรอกเขต/อำเภอ"
+                          value={formData.currentDistrict}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>จังหวัด</label>
+                        <input
+                          type="text"
+                          name="currentProvince"
+                          placeholder="กรุณากรอกจังหวัด"
+                          value={formData.currentProvince}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>รหัสไปรษณีย์</label>
+                        <input
+                          type="text"
+                          name="currentZipCode"
+                          placeholder="กรุณากรอกรหัสไปรษณีย์"
+                          value={formData.currentZipCode}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderTabContent()}
-            </motion.div>
-          </AnimatePresence>
+            {/* Professional Information Section */}
+            <div className="form-section">
+              <h2 className="section-title">Professional Information</h2>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Position <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    name="position"
+                    placeholder="Enter position"
+                    value={formData.position}
+                    onChange={handleChange}
+                  />
+                  {errors.position && <span className="error-text">{errors.position}</span>}
+                </div>
 
-          <div className="form-actions">
-            {activeTab === 'personal' ? (
-              <button type="button" className="btn-cancel" onClick={handleCancel}>
+                <div className="form-group">
+                  <label>Type <span className="required">*</span></label>
+                  <select name="type" value={formData.type} onChange={handleChange}>
+                    <option value="">Select type</option>
+                    <option value="Permanent">Permanent</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Intern">Intern</option>
+                    <option value="Freelance">Freelance</option>
+                  </select>
+                  {errors.type && <span className="error-text">{errors.type}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Status <span className="required">*</span></label>
+                  <select name="status" value={formData.status} onChange={handleChange}>
+                    <option value="">Select status</option>
+                    <option value="Active">Active</option>
+                    <option value="InActive">InActive</option>
+                  </select>
+                  {errors.status && <span className="error-text">{errors.status}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Start Date <span className="required">*</span></label>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={formData.startDate}
+                    onChange={handleChange}
+                  />
+                  {errors.startDate && <span className="error-text">{errors.startDate}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Salary <span className="required">*</span></label>
+                  <input
+                    type="number"
+                    name="salary"
+                    placeholder="Enter salary"
+                    value={formData.salary}
+                    onChange={handleChange}
+                  />
+                  {errors.salary && <span className="error-text">{errors.salary}</span>}
+                </div>
+              </div>
+
+              {/* Work History */}
+              <div className="work-history-section">
+                <h3>Work History</h3>
+                <table className="work-history-table">
+                  <thead>
+                    <tr>
+                      <th>Company</th>
+                      <th>Position</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Salary</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>                    {formData.workHistory.map((work, idx) => (
+                      <React.Fragment key={idx}>
+                        <tr>
+                          <td>
+                            <input
+                              type="text"
+                              placeholder="Company name"
+                              value={work.company}
+                              onChange={e => handleWorkHistoryChange(idx, 'company', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              placeholder="Position"
+                              value={work.position}
+                              onChange={e => handleWorkHistoryChange(idx, 'position', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="month"
+                              value={work.start}
+                              onChange={e => handleWorkHistoryChange(idx, 'start', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="month"
+                              value={work.end}
+                              onChange={e => handleWorkHistoryChange(idx, 'end', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              placeholder="Salary"
+                              value={work.salary}
+                              onChange={e => handleWorkHistoryChange(idx, 'salary', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            {formData.workHistory.length > 1 && (
+                              <button
+                                type="button"
+                                className="btn-remove-row"
+                                onClick={() => handleRemoveWorkHistory(idx)}
+                              >
+                                ×
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                        <tr className="description-row">
+                          <td colSpan="6">
+                            <textarea
+                              placeholder="Job description"
+                              value={work.description}
+                              onChange={e => handleWorkHistoryChange(idx, 'description', e.target.value)}
+                              rows="3"
+                              className="work-description"
+                            />
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+                <button type="button" className="btn-add-row" onClick={handleAddWorkHistory}>
+                  + Add Work History
+                </button>
+              </div>
+
+              {/* Education History */}
+              <div className="education-section">
+                <h3>Education History</h3>
+                <table className="work-history-table">
+                  <thead>
+                    <tr>
+                      <th>Level</th>
+                      <th>Field of Study</th>
+                      <th>Institution</th>
+                      <th>Year</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.educationHistory.map((edu, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <select
+                            value={edu.level}
+                            onChange={e => handleEducationChange(idx, 'level', e.target.value)}
+                          >
+                            <option value="">Select Level</option>
+                            <option value="high_school">มัธยมตอนปลาย</option>
+                            <option value="vocational">ปวช.</option>
+                            <option value="high_vocational">ปวท. / ปวส.</option>
+                            <option value="bachelor">ปริญญาตรี</option>
+                            <option value="master">ปริญญาโท</option>
+                            <option value="doctorate">ปริญญาเอก</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Field of study"
+                            value={edu.field}
+                            onChange={e => handleEducationChange(idx, 'field', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            placeholder="Institution name"
+                            value={edu.institution}
+                            onChange={e => handleEducationChange(idx, 'institution', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            placeholder="Year"
+                            value={edu.graduationYear}
+                            onChange={e => handleEducationChange(idx, 'graduationYear', e.target.value)}
+                            min="1950"
+                            max="2025"
+                          />
+                        </td>
+                        <td>
+                          {formData.educationHistory.length > 1 && (
+                            <button
+                              type="button"
+                              className="btn-remove-row"
+                              onClick={() => handleRemoveEducation(idx)}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <button type="button" className="btn-add-row" onClick={handleAddEducation}>
+                  + Add Education
+                </button>
+              </div>
+            </div>
+
+            {/* Bank Information Section */}
+            <div className="form-section">
+              <h2 className="section-title">Bank Information</h2>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Bank Name <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    placeholder="Enter bank name"
+                    value={formData.bankName}
+                    onChange={handleChange}
+                  />
+                  {errors.bankName && <span className="error-text">{errors.bankName}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Account Holder Name</label>
+                  <input
+                    type="text"
+                    name="accountHolderName"
+                    placeholder="Enter account holder name"
+                    value={formData.accountHolderName}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Account Number <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    name="accountNumber"
+                    placeholder="Enter account number"
+                    value={formData.accountNumber}
+                    onChange={handleChange}
+                  />
+                  {errors.accountNumber && <span className="error-text">{errors.accountNumber}</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Family Information Section */}
+            <div className="form-section">
+              <h2 className="section-title">Family Information</h2>
+              
+              {/* Father's Information */}
+              <div className="family-section">
+                <h3>Father's Information</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="fatherName"
+                      placeholder="Father's name"
+                      value={formData.fatherName}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Age</label>
+                    <input
+                      type="number"
+                      name="fatherAge"
+                      placeholder="Father's age"
+                      value={formData.fatherAge}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Occupation</label>
+                    <input
+                      type="text"
+                      name="fatherOccupation"
+                      placeholder="Father's occupation"
+                      value={formData.fatherOccupation}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mother's Information */}
+              <div className="family-section">
+                <h3>Mother's Information</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="motherName"
+                      placeholder="Mother's name"
+                      value={formData.motherName}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Age</label>
+                    <input
+                      type="number"
+                      name="motherAge"
+                      placeholder="Mother's age"
+                      value={formData.motherAge}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Occupation</label>
+                    <input
+                      type="text"
+                      name="motherOccupation"
+                      placeholder="Mother's occupation"
+                      value={formData.motherOccupation}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Spouse Information */}
+              <div className="family-section">
+                <h3>Spouse Information</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      name="spouseName"
+                      placeholder="Spouse's name"
+                      value={formData.spouseName}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Age</label>
+                    <input
+                      type="number"
+                      name="spouseAge"
+                      placeholder="Spouse's age"
+                      value={formData.spouseAge}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Occupation</label>
+                    <input
+                      type="text"
+                      name="spouseOccupation"
+                      placeholder="Spouse's occupation"
+                      value={formData.spouseOccupation}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Family Details */}
+              <div className="family-section">
+                <h3>Family Details</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Number of Children</label>
+                    <input
+                      type="number"
+                      name="numberOfChildren"
+                      placeholder="0"
+                      value={formData.numberOfChildren}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Birth Order</label>
+                    <input
+                      type="number"
+                      name="birthOrder"
+                      placeholder="0"
+                      value={formData.birthOrder}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Total Siblings</label>
+                    <input
+                      type="number"
+                      name="totalSiblings"
+                      placeholder="0"
+                      value={formData.totalSiblings}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Documents Section */}
+            <div className="form-section">
+              <h2 className="section-title">Required Documents</h2>
+              <div className="file-upload-section">
+                <div className="documents-grid">                  {/* Job Application */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> ใบสมัครงาน
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="job-application"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleFileUpload(e, 'jobApplication')}
+                        hidden
+                        multiple
+                      />
+                      <label htmlFor="job-application" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, DOC, DOCX</p>
+                      </label>
+                    </div>
+                    {formData.jobApplication && formData.jobApplication.length > 0 && (
+                      <div className="uploaded-files">
+                        {formData.jobApplication.map((file, index) => (
+                          <div key={index} className="uploaded-file">
+                            <FiFile />
+                            <span title={file.name}>{truncateFileName(file.name)}</span>
+                            <button 
+                              type="button" 
+                              className="remove-file"
+                              onClick={() => handleRemoveFile('jobApplication', index)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>                  {/* Certificate */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> วุฒิบัตร
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="certificate"
+                        accept=".pdf,.jpg,.jpeg"
+                        onChange={(e) => handleFileUpload(e, 'certificate')}
+                        hidden
+                        multiple
+                      />
+                      <label htmlFor="certificate" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, JPG, JPEG</p>
+                      </label>
+                    </div>
+                    {formData.certificate && formData.certificate.length > 0 && (
+                      <div className="uploaded-files">
+                        {formData.certificate.map((file, index) => (
+                          <div key={index} className="uploaded-file">
+                            <FiFile />
+                            <span title={file.name}>{truncateFileName(file.name)}</span>
+                            <button 
+                              type="button" 
+                              className="remove-file"
+                              onClick={() => handleRemoveFile('certificate', index)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* National ID */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> สำเนาบัตรประชาชน
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="national-id"
+                        accept=".pdf,.jpg,.jpeg"
+                        onChange={(e) => handleFileUpload(e, 'nationalId')}
+                        hidden
+                      />
+                      <label htmlFor="national-id" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, JPG, JPEG</p>
+                      </label>
+                    </div>
+                    {formData.nationalId && (
+                      <div className="uploaded-files">
+                        <div className="uploaded-file">
+                          <FiFile />
+                          <span title={formData.nationalId.name}>
+                            {truncateFileName(formData.nationalId.name)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* House Registration */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> สำเนาทะเบียนบ้าน
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="house-registration"
+                        accept=".pdf,.jpg,.jpeg"
+                        onChange={(e) => handleFileUpload(e, 'householdRegistration')}
+                        hidden
+                      />
+                      <label htmlFor="house-registration" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, JPG, JPEG</p>
+                      </label>
+                    </div>
+                    {formData.householdRegistration && (
+                      <div className="uploaded-files">
+                        <div className="uploaded-file">
+                          <FiFile />
+                          <span title={formData.householdRegistration.name}>
+                            {truncateFileName(formData.householdRegistration.name)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bank Account */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> สำเนาสมุดบัญชีธนาคาร
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="bank-book"
+                        accept=".pdf,.jpg,.jpeg"
+                        onChange={(e) => handleFileUpload(e, 'bankBook')}
+                        hidden
+                      />
+                      <label htmlFor="bank-book" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, JPG, JPEG</p>
+                      </label>
+                    </div>
+                    {formData.bankBook && (
+                      <div className="uploaded-files">
+                        <div className="uploaded-file">
+                          <FiFile />
+                          <span title={formData.bankBook.name}>
+                            {truncateFileName(formData.bankBook.name)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Employment Contract */}
+                  <div className="document-upload-card">
+                    <h3 className="document-title">
+                      <FiFile /> สัญญาจ้าง
+                    </h3>
+                    <div className="upload-area-doc">
+                      <input
+                        type="file"
+                        id="employment-contract"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => handleFileUpload(e, 'employmentContract')}
+                        hidden
+                      />
+                      <label htmlFor="employment-contract" className="upload-label">
+                        <div className="upload-icon">
+                          <FiUpload />
+                        </div>
+                        <p>ลากไฟล์หรือ <span className="choose-text">เลือกไฟล์</span> เพื่ออัปโหลด</p>
+                        <p className="supported-text">รองรับไฟล์: PDF, DOC, DOCX</p>
+                      </label>
+                    </div>
+                    {formData.employmentContract && (
+                      <div className="uploaded-files">
+                        <div className="uploaded-file">
+                          <FiFile />
+                          <span title={formData.employmentContract.name}>
+                            {truncateFileName(formData.employmentContract.name)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Other sections... */}
+            <div className="form-section">
+              <h2 className="section-title">Other</h2>
+              
+              {/* Language Ability Section */}
+              <div className="language-ability-section">
+                <h3>Language Ability</h3>
+                <div className="language-grid">
+                  <div className="language-row">
+                    <div className="language-label">Speaking:</div>
+                    <div className="language-options">
+                      <label>
+                        <input
+                          type="radio"
+                          name="speaking"
+                          value="good"
+                          checked={formData.speaking === 'good'}
+                          onChange={handleChange}
+                        />
+                        Good
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="speaking"
+                          value="fair"
+                          checked={formData.speaking === 'fair'}
+                          onChange={handleChange}
+                        />
+                        Fair
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="speaking"
+                          value="poor"
+                          checked={formData.speaking === 'poor'}
+                          onChange={handleChange}
+                        />
+                        Poor
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="language-row">
+                    <div className="language-label">Writing:</div>
+                    <div className="language-options">
+                      <label>
+                        <input
+                          type="radio"
+                          name="writing"
+                          value="good"
+                          checked={formData.writing === 'good'}
+                          onChange={handleChange}
+                        />
+                        Good
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="writing"
+                          value="fair"
+                          checked={formData.writing === 'fair'}
+                          onChange={handleChange}
+                        />
+                        Fair
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="writing"
+                          value="poor"
+                          checked={formData.writing === 'poor'}
+                          onChange={handleChange}
+                        />
+                        Poor
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="language-row">
+                    <div className="language-label">Reading:</div>
+                    <div className="language-options">
+                      <label>
+                        <input
+                          type="radio"
+                          name="reading"
+                          value="good"
+                          checked={formData.reading === 'good'}
+                          onChange={handleChange}
+                        />
+                        Good
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="reading"
+                          value="fair"
+                          checked={formData.reading === 'fair'}
+                          onChange={handleChange}
+                        />
+                        Fair
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="reading"
+                          value="poor"
+                          checked={formData.reading === 'poor'}
+                          onChange={handleChange}
+                        />
+                        Poor
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Criminal Record Section */}
+              <div className="criminal-record-section">
+                <h3>ประวัติทางกฎหมาย</h3>
+                <div className="criminal-record-container">
+                  <div className="criminal-record-question">
+                    <p>เคยต้องโทษทางแพ่งหรืออาญาหรือไม่</p>
+                    <div className="criminal-options">
+                      <label>
+                        <input
+                          type="radio"
+                          name="hasCriminalRecord"
+                          value="yes"
+                          checked={formData.hasCriminalRecord === 'yes'}
+                          onChange={handleChange}
+                        />
+                        เคย
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="hasCriminalRecord"
+                          value="no"
+                          checked={formData.hasCriminalRecord === 'no'}
+                          onChange={handleChange}
+                        />
+                        ไม่เคย
+                      </label>
+                    </div>
+                  </div>
+
+                  {formData.hasCriminalRecord === 'yes' && (
+                    <div className="criminal-details">
+                      <label htmlFor="criminalDetails">รายละเอียด:</label>
+                      <textarea
+                        id="criminalDetails"
+                        name="criminalDetails"
+                        value={formData.criminalDetails}
+                        onChange={handleChange}
+                        placeholder="โปรดระบุรายละเอียดความผิดและโทษที่ได้รับ"
+                        rows="3"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Work Relocation Section */}
+              <div className="relocation-section">
+                <h3>การปฏิบัติงานต่างจังหวัด</h3>
+                <div className="relocation-container">
+                  <p>สามารถไปปฏิบัติงานต่างจังหวัดได้หรือไม่</p>
+                  <div className="relocation-options">
+                    <label>
+                      <input
+                        type="radio"
+                        name="canRelocate"
+                        value="yes"
+                        checked={formData.canRelocate === 'yes'}
+                        onChange={handleChange}
+                      />
+                      ได้
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="canRelocate"
+                        value="no"
+                        checked={formData.canRelocate === 'no'}
+                        onChange={handleChange}
+                      />
+                      ไม่ได้
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Emergency Contact Section */}
+              <div className="emergency-contact-section">
+                <h3>บุคคลที่ติดต่อได้กรณีฉุกเฉิน</h3>
+                
+                {/* คนที่ 1 */}
+                <div className="emergency-contact-container">
+                  <h4>บุคคลที่ 1</h4>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>ชื่อ-นามสกุล</label>
+                      <input
+                        type="text"
+                        name="emergencyContactName"
+                        placeholder="กรุณากรอกชื่อ-นามสกุล"
+                        value={formData.emergencyContactName}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>ความเกี่ยวข้องกับผู้สมัคร</label>
+                      <input
+                        type="text"
+                        name="emergencyContactRelation"
+                        placeholder="กรุณาระบุความเกี่ยวข้อง"
+                        value={formData.emergencyContactRelation}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>เบอร์โทรศัพท์</label>
+                      <input
+                        type="tel"
+                        name="emergencyContactPhone"
+                        placeholder="กรุณากรอกเบอร์โทรศัพท์"
+                        value={formData.emergencyContactPhone}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label>ที่อยู่</label>
+                    <textarea
+                      name="emergencyContactAddress"
+                      placeholder="กรุณากรอกที่อยู่"
+                      value={formData.emergencyContactAddress}
+                      onChange={handleChange}
+                      rows="3"
+                    />
+                  </div>
+                </div>
+
+                {/* คนที่ 2 */}
+                <div className="emergency-contact-container" style={{ marginTop: '20px' }}>
+                  <h4>บุคคลที่ 2</h4>
+                  <div className="form-grid">
+                    <div className="form-group">
+                      <label>ชื่อ-นามสกุล</label>
+                      <input
+                        type="text"
+                        name="emergencyContactName2"
+                        placeholder="กรุณากรอกชื่อ-นามสกุล"
+                        value={formData.emergencyContactName2}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>ความเกี่ยวข้องกับผู้สมัคร</label>
+                      <input
+                        type="text"
+                        name="emergencyContactRelation2"
+                        placeholder="กรุณาระบุความเกี่ยวข้อง"
+                        value={formData.emergencyContactRelation2}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>เบอร์โทรศัพท์</label>
+                      <input
+                        type="tel"
+                        name="emergencyContactPhone2"
+                        placeholder="กรุณากรอกเบอร์โทรศัพท์"
+                        value={formData.emergencyContactPhone2}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label>ที่อยู่</label>
+                    <textarea
+                      name="emergencyContactAddress2"
+                      placeholder="กรุณากรอกที่อยู่"
+                      value={formData.emergencyContactAddress2}
+                      onChange={handleChange}
+                      rows="3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button type="button" className="btn-cancel" onClick={() => navigate('/employees')}>
                 Cancel
               </button>
-            ) : (
-              <button type="button" className="btn-back" onClick={handleBack}>
-                Back
+              <button type="submit" className="btn-submit">
+                Save
               </button>
-            )}
-            {activeTab !== 'account' ? (
-              <button type="button" className="btn-next" onClick={handleNext}>
-                Next
-              </button>
-            ) : (
-              <button 
-                type="submit" 
-                className="btn-submit"
-                style={styles.submitButton}
-                onClick={handleSubmit}
-              >
-                Submit
-              </button>
-            )}
-          </div>
-
-          {/* Confirmation Popup */}
-          {showConfirmation && (
-            <div style={styles.confirmationOverlay}>
-              <motion.div 
-                style={styles.confirmationModal}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-              >
-                <h3>Confirm Submission</h3>
-                <p>Are you sure you want to add this employee?</p>
-                <div style={{ marginTop: '2rem', gap: '1rem', display: 'flex', justifyContent: 'center' }}>
-                  <button 
-                    className="btn-cancel" 
-                    onClick={() => setShowConfirmation(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    className="btn-submit"
-                    style={styles.submitButton}
-                    onClick={handleConfirmSubmit}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </motion.div>
             </div>
-          )}
+          </form>
         </motion.div>
       </div>
+
+      {showSuccessPopup && (
+        <>
+          <div className="popup-overlay"></div>
+          <div className="success-popup">
+            <div className="success-icon">
+              <FiCheck />
+            </div>
+            <h2 className="success-title">Success!</h2>
+            <p className="success-message">Employee has been added successfully.</p>
+            <button className="success-button" onClick={handleSuccessClose}>
+              Continue
+            </button>
+          </div>
+        </>
+      )}
+
+      <style>
+        {`
+          .uploaded-files {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 10px;
+          }
+
+          .uploaded-file {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+          }
+
+          .uploaded-file:hover {
+            background: #e9e9e9;
+          }
+
+          .uploaded-file svg {
+            margin-right: 8px;
+            color: #666;
+          }
+
+          .uploaded-file span {
+            flex: 1;
+            margin-right: 8px;
+            font-size: 0.9em;
+            color: #333;
+          }
+
+          .remove-file {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0 4px;
+            transition: color 0.2s ease;
+          }
+
+          .remove-file:hover {
+            color: #cc0000;
+          }
+        `}
+      </style>
     </div>
   )
 }

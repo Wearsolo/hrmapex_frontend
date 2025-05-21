@@ -46,8 +46,11 @@ cd hrmanagement
 ```bash
 npm install
 ```
-
-4. Start the development server:
+4. Start server:
+```bash
+node server/index.js
+```
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -64,6 +67,7 @@ npm run dev
 
 ```
 hrmanagement/
+├── server/
 ├── src/
 │   ├── components/
 │   │   ├── Dashboard/
@@ -90,7 +94,6 @@ hrmanagement/
 
 - Chrome (latest)
 - Firefox (latest)
-- Safari (latest)
 - Edge (latest)
 
 ## 🤝 Contributing
@@ -101,8 +104,3 @@ hrmanagement/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 🙏 Acknowledgments
-
-- React Icons for the beautiful icon set
-- Framer Motion for smooth animations
-- The React community for inspiration and support

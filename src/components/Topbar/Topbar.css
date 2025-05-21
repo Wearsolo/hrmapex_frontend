@@ -64,17 +64,21 @@
 .search-container {
   position: relative;
   width: 240px;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.5rem 1rem 0.5rem 2.2rem;
-  border: none;
+  height: 36px;
+  padding: 0.5rem 2.5rem 0.5rem 2.5rem;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   font-size: 0.85rem;
   transition: all 0.2s ease;
+  text-align: right;
 }
 
 [data-theme='dark'] .search-input {
@@ -98,11 +102,12 @@
 
 .search-icon {
   position: absolute;
-  left: 1rem;
+  left: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-secondary);
   font-size: 1rem;
+  pointer-events: none;
 }
 
 .notification-btn {
@@ -251,7 +256,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,56 +265,102 @@
 }
 
 .logout-modal {
+  position: relative;
   background: var(--card-bg);
-  padding: 24px;
-  border-radius: 12px;
-  width: 400px;
+  padding: 32px;
+  border-radius: 16px;
+  width: 380px;
   max-width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .logout-modal h3 {
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
   color: var(--text-primary);
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.4;
+  width: 100%;
+  text-align: center;
 }
 
 .logout-modal p {
   margin: 0 0 24px 0;
   color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  width: 100%;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .modal-actions {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
+  justify-content: center;
+  width: 100%;
 }
 
 .modal-actions button {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 12px 28px;
+  border-radius: 8px;
   font-weight: 500;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  border: none;
+  white-space: nowrap;
 }
 
 .cancel-btn {
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
   color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .logout-btn {
   background: #dc3545;
-  border: none;
   color: white;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
 }
 
 .cancel-btn:hover {
-  background: var(--bg-secondary);
-  opacity: 0.9;
+  background: #e5e7eb;
+  transform: translateY(-1px);
 }
 
 .logout-btn:hover {
   background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.25);
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+[data-theme='dark'] .logout-modal {
+  background: #2C2C3A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .cancel-btn {
+  background: #374151;
+  border-color: #4B5563;
+  color: #E5E7EB;
+}
+
+[data-theme='dark'] .cancel-btn:hover {
+  background: #4B5563;
 }
 
 /* Remove outline from interactive elements */

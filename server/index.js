@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(fileUpload({
     createParentPath: true,
     limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB max file size
+        fileSize: 10 * 1024 * 1024
     }
 }));
 
@@ -30,16 +30,50 @@ const transporter = nodemailer.createTransport({
 // Function to send email notification
 const sendEmailNotification = async (newsData) => {
     try {
+        // Build image HTML if attachment exists and is an image
+        let imageHtml = '';
+        if (newsData.attachment) {
+            const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+            const fileExt = newsData.attachment.toLowerCase().split('.').pop();
+            if (imageExtensions.includes('.' + fileExt)) {
+                imageHtml = `
+                    <div style="margin: 20px 0;">
+                        <img src="http://localhost:3001/uploads/${newsData.attachment}" 
+                             alt="News Image" 
+                             style="max-width: 100%; 
+                                    border-radius: 8px; 
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>`;
+            }
+        }
+
         const mailOptions = {
             from: 'mamm0n715120@gmail.com',
             to: 'nuania715120@gmail.com',
-            subject: `New Announcement: ${newsData.title}`,
+            subject: `📢 ข่าวสารใหม่มาแล้ว: ${newsData.title}`,
             html: `
-                <h2>${newsData.title}</h2>
-                <p><strong>Category:</strong> ${newsData.category}</p>
-                <p><strong>Content:</strong></p>
-                <p>${newsData.content}</p>
-                <p><em>This is an automated notification from the HR Management System.</em></p>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px; background-color: #f9f9f9;">
+                    <h2 style="color: #4F46E5;">${newsData.title}</h2>
+                    <p style="font-size: 16px; color: #555;">
+                        มีข่าวสารใหม่จาก <strong style="color: #000;">หมวดหมู่: ${newsData.category}</strong> ที่คุณไม่ควรพลาด!
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    ${imageHtml}
+                    <p style="font-size: 15px; color: #333;">${newsData.content}</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="http://localhost:5173/news/${newsData.newsId}" 
+                           style="background-color: #4F46E5; color: white; padding: 12px 24px; 
+                                  text-decoration: none; border-radius: 5px; font-weight: bold;
+                                  display: inline-block;">
+                            คลิกเพื่อดูข่าวเพิ่มเติม
+                        </a>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    <p style="font-size: 13px; color: #888;">
+                        ✉️ ข้อความนี้จัดส่งโดยระบบ HR Management System<br/>
+                        กรุณาอย่าตอบกลับอีเมลฉบับนี้
+                    </p>
+                </div>
             `
         };
 
@@ -312,19 +346,43 @@ app.get('/api/projects/:id', async (req, res, next) => {
 app.get('/api/dashboard/counts', async (req, res, next) => {
     try {
         const [[employeeCount]] = await pool.query('SELECT COUNT(*) as count FROM employees');
-        const [[projectCount]] = await pool.query('SELECT COUNT(*) as count FROM project');
         
-        // Get today's attendance count
-        const today = new Date().toISOString().split('T')[0];
-        const [[attendanceCount]] = await pool.query(
-            'SELECT COUNT(*) as count FROM attendance WHERE Date = ?',
-            [today]
+        // Get total leaves count
+        const [[leavesCount]] = await pool.query('SELECT COUNT(*) as count FROM leaves');
+        
+        // Get total disbursement amount
+        const [[disbursementTotal]] = await pool.query('SELECT COALESCE(SUM(Amount), 0) as total FROM disbursements');
+        
+        // Get previous month's counts for percentage changes
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        const lastMonthStr = lastMonth.toISOString().split('T')[0].substring(0, 7); // YYYY-MM
+        
+        const [[lastMonthLeaves]] = await pool.query(
+            'SELECT COUNT(*) as count FROM leaves WHERE DATE_FORMAT(StartDate, "%Y-%m") = ?',
+            [lastMonthStr]
         );
         
+        const [[lastMonthDisbursement]] = await pool.query(
+            'SELECT COALESCE(SUM(Amount), 0) as total FROM disbursements WHERE DATE_FORMAT(DisbursementDate, "%Y-%m") = ?',
+            [lastMonthStr]
+        );
+
+        // Calculate percentage changes
+        const leavesChange = lastMonthLeaves.count === 0 ? '+0%' : 
+            `${((leavesCount.count - lastMonthLeaves.count) / lastMonthLeaves.count * 100).toFixed(0)}%`;
+        
+        const disbursementChange = lastMonthDisbursement.total === 0 ? '+0%' : 
+            `${((disbursementTotal.total - lastMonthDisbursement.total) / lastMonthDisbursement.total * 100).toFixed(0)}%`;
+        
         res.json({
-            totalEmployees: employeeCount.count,
-            totalProjects: projectCount.count,
-            todayAttendance: attendanceCount.count
+            totalEmployees: employeeCount.count || 0,
+            totalDisbursement: disbursementTotal.total || 0,
+            totalLeaves: leavesCount.count || 0,
+            employeeChange: '+4%', // Hardcoded for now, can be made dynamic later
+            applicantChange: '-2%', // Hardcoded for now, can be made dynamic later
+            disbursementChange,
+            leavesChange
         });
     } catch (error) {
         next(error);
@@ -348,11 +406,22 @@ app.get('/api/news', async (req, res, next) => {
 app.post('/api/news', async (req, res, next) => {
     try {
         const { title, category, content, createdDate } = req.body;
+        let attachment = null;
+
+        // Handle file upload if present
+        if (req.files && req.files.attachment) {
+            const file = req.files.attachment;
+            const fileName = `${Date.now()}-${file.name}`;
+            
+            // Move the file to uploads directory
+            await file.mv(`./uploads/${fileName}`);
+            attachment = fileName;
+        }
         
         const [result] = await pool.query(
-            `INSERT INTO news (Title, Category, Content, CreatedAt) 
-             VALUES (?, ?, ?, ?)`,
-            [title, category, content, createdDate || new Date()]
+            `INSERT INTO news (Title, Category, Content, CreatedAt, Attachment) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [title, category, content, createdDate || new Date(), attachment]
         );
         
         if (result.insertId) {
@@ -360,9 +429,11 @@ app.post('/api/news', async (req, res, next) => {
             
             // Send email notification after successful news creation
             await sendEmailNotification({
+                newsId: newNews.NewsId,
                 title: newNews.Title,
                 category: newNews.Category,
-                content: newNews.Content
+                content: newNews.Content,
+                attachment: newNews.Attachment // Pass the attachment filename to email notification
             });
 
             res.status(201).json({ 
@@ -453,6 +524,11 @@ app.put('/api/news/:id/toggle-pin', async (req, res) => {
     const { id } = req.params;
     const { isPinned } = req.body;
     
+    // Validate input
+    if (typeof isPinned !== 'number' || ![0, 1].includes(isPinned)) {
+      return res.status(400).json({ error: 'isPinned must be 0 or 1' });
+    }
+
     const [result] = await pool.query(
       'UPDATE news SET isPinned = ? WHERE NewsId = ?',
       [isPinned, id]
@@ -462,10 +538,105 @@ app.put('/api/news/:id/toggle-pin', async (req, res) => {
       return res.status(404).json({ error: 'News not found' });
     }
 
-    res.json({ message: 'Pin status updated successfully' });
+    // Return the new state in the response
+    res.json({ 
+      success: true,
+      message: 'Pin status updated successfully',
+      isPinned: isPinned
+    });
   } catch (error) {
     console.error('Error updating pin status:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Failed to update pin status',
+      message: error.message 
+    });
+  }
+});
+
+// Toggle visibility status for a news item
+app.put('/api/news/:id/toggle-visibility', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { Hidenews } = req.body;
+      
+      const [result] = await pool.query(
+        'UPDATE news SET Hidenews = ? WHERE NewsId = ?',
+        [Hidenews, id]
+      );
+  
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'News not found' });
+      }
+  
+      res.json({ message: 'Visibility status updated successfully' });
+    } catch (error) {
+      console.error('Error updating visibility status:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+// Send reject notification email
+app.post('/api/disbursement/reject-notification', async (req, res) => {
+  try {
+    const { employeeName, category, amount, rejectReason, employeeEmail } = req.body;
+
+    const mailOptions = {
+      from: 'mamm0n715120@gmail.com',
+      to: 'nuania715120@gmail.com',
+      subject: 'การเบิกจ่ายของคุณถูกปฏิเสธ',
+      html: `
+        <div style="font-family: 'Prompt', sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ef4444;">การเบิกจ่ายถูกปฏิเสธ</h2>
+          <p>เรียน คุณ${employeeName}</p>
+          <p>การเบิกจ่ายของคุณถูกปฏิเสธด้วยรายละเอียดดังนี้:</p>
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p><strong>หมวดหมู่:</strong> ${category}</p>
+            <p><strong>จำนวนเงิน:</strong> ${amount.toLocaleString()} บาท</p>
+            <p><strong>เหตุผลที่ปฏิเสธ:</strong> ${rejectReason}</p>
+          </div>
+          <p>หากมีข้อสงสัยกรุณาติดต่อฝ่ายทรัพยากรบุคคล</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: 'ส่งอีเมลแจ้งเตือนเรียบร้อยแล้ว' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการส่งอีเมล' });
+  }
+});
+
+// Send new disbursement notification email
+app.post('/api/disbursement/new-notification', async (req, res) => {
+  try {
+    const { employeeName, category, amount, details, date } = req.body;
+
+    const mailOptions = {
+      from: 'mamm0n715120@gmail.com',
+      to: 'nuania715120@gmail.com',
+      subject: 'มีการสร้างรายการเบิกจ่ายใหม่',
+      html: `
+        <div style="font-family: 'Prompt', sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4F46E5;">มีรายการเบิกจ่ายใหม่</h2>
+          <p>รายการเบิกจ่ายใหม่ได้ถูกสร้างโดย ${employeeName}</p>
+          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p><strong>พนักงาน:</strong> ${employeeName}</p>
+            <p><strong>หมวดหมู่:</strong> ${category}</p>
+            <p><strong>จำนวนเงิน:</strong> ${amount.toLocaleString()} บาท</p>
+            <p><strong>วันที่:</strong> ${new Date(date).toLocaleDateString('th-TH')}</p>
+            <p><strong>รายละเอียด:</strong> ${details}</p>
+          </div>
+          <p>กรุณาตรวจสอบและดำเนินการต่อไป</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: 'ส่งอีเมลแจ้งเตือนเรียบร้อยแล้ว' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการส่งอีเมล' });
   }
 });
 

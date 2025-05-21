@@ -6,6 +6,7 @@ import './OTP.css'
 
 function OTP() {
   const [otp, setOtp] = useState(['', '', '', '', ''])
+  const [error, setError] = useState('')
   const email = "admin@example.com"
   const navigate = useNavigate()
   const backspacePressed = useRef(false)
@@ -52,25 +53,17 @@ function OTP() {
   }
 
   const handleVerify = () => {
-    // Add OTP validation here if needed
+    const enteredOTP = otp.join('')
+    if (enteredOTP === '11111') {
+      setError('Invalid OTP code')
+      return
+    }
+    setError('')
     navigate('/reset-password')
   }
 
   return (
-    <div className="login-container">
-      <div className="login-left">
-        <ul className="circles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
+    <div className="login-container">      <div className="login-left">
         <img src={bgDashboard} alt="Dashboard Preview" className="dashboard-preview" />
       </div>
       <div className="login-right">
@@ -98,10 +91,11 @@ function OTP() {
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 onKeyUp={handleKeyUp}
-                className="otp-input"
+                className={`otp-input ${error ? 'error' : ''}`}
               />
             ))}
           </div>
+          {error && <p className="error-message">{error}</p>}
 
           <button className="login-button" onClick={handleVerify}>
             Verify

@@ -9,7 +9,6 @@ function Topbar({ pageTitle = "Dashboard", pageSubtitle = "" }) {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const currentHour = new Date().getHours()
   
   const userInfo = {
@@ -26,10 +25,6 @@ function Topbar({ pageTitle = "Dashboard", pageSubtitle = "" }) {
   }
 
   const handleLogout = () => {
-    setShowLogoutModal(true)
-  }
-
-  const confirmLogout = () => {
     localStorage.removeItem('auth')
     navigate('/login')
   }
@@ -100,39 +95,6 @@ function Topbar({ pageTitle = "Dashboard", pageSubtitle = "" }) {
           </div>
         </div>
       </div>
-
-      {showLogoutModal && (
-        <motion.div 
-          className="modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div 
-            className="logout-modal"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.9 }}
-          >
-            <h3>Confirm Logout</h3>
-            <p>Are you sure you want to logout?</p>
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
-                onClick={() => setShowLogoutModal(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="logout-btn"
-                onClick={confirmLogout}
-              >
-                Logout
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
     </>
   )
 }

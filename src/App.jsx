@@ -9,6 +9,15 @@ import NewEmployees from './components/NewEmployees/NewEmployees'
 import ProfileDetail from './components/ProfileDetail/ProfileDetail'
 import New from './components/Newspage/New'
 import AddNew from './components/Newspage/AddNews/Addnew'
+import Leaves from './components/Leaves/leaves'
+import Payroll from './components/Payroll/Payroll'
+import PayrollDetail from './components/PayrollDetail/PayrollDetail'
+import Disbursement from './components/Disbursement/disbursement'
+import Adddisburse from './components/Disbursement/Adddisburse'
+import LeaveDetail from './components/Leaves/leavesdetail'
+import Setting from './components/Layout/setting'
+import Holidays from './components/holidays/holidays'
+import NewHoliday from './components/holidays/NewHoliday'
 import { ThemeProvider } from './context/ThemeContext'
 import './styles/global.css'
 
@@ -28,6 +37,15 @@ function App() {
           <Route path="/employee/:id" element={<ProfileDetail />} />
           <Route path="/news" element={<New />} />
           <Route path="/addnews" element={<AddNew />} />
+          <Route path="/leaves" element={<Leaves />} />
+          <Route path="/leaves/detail/:empId" element={<LeaveDetail />} />
+          <Route path="/payroll" element={<Payroll />} />
+          <Route path="/payroll-detail/:id" element={<PayrollDetail />} />
+          <Route path="/disbursement" element={<Disbursement />} />
+          <Route path="/adddisburse" element={<Adddisburse />} />
+          <Route path="/settings" element={<Setting />} />
+          <Route path="/holidays" element={<Holidays />} />
+          <Route path="/newholiday/:monthIndex" element={<NewHoliday />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

@@ -2,6 +2,7 @@
   --bg-primary: #ffffff;
   --bg-secondary: #F3F2FF;
   --card-bg: #ffffff;
+  --input-bg: #ffffff;
   --text-primary: #333333;
   --text-secondary: #666666;
   --border-color: #eee;
@@ -20,10 +21,17 @@
   --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
+@font-face {
+  font-family: 'KonmekDemo';
+  src: url('../assets/font/KonmekDemo.ttf') format('truetype');
+  unicode-range: U+0E00-0E7F; /* Thai Unicode range */
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'KonmekDemo', sans-serif;
 }
 
 /* Common component styles */
@@ -52,4 +60,15 @@ body {
 html, body {
   height: 100%;
   overflow: auto !important;
+}
+
+@keyframes popSuccess {
+  0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+  60% { transform: scale(1.05) translateY(-8px); opacity: 1; }
+  80% { transform: scale(0.97) translateY(0); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+:lang(th) {
+  font-family: 'KonmekDemo', sans-serif;
 }

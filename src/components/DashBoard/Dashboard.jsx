@@ -1,43 +1,44 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaUsers, FaUserPlus, FaRegCalendarCheck, FaProjectDiagram } from 'react-icons/fa'
+import { FaUsers, FaUserPlus, FaRegCalendarCheck, FaLeaf } from 'react-icons/fa'
 import { BsThreeDots } from 'react-icons/bs'
 import SideMenu from '../SideMenu/Side_menu'
 import Topbar from '../Topbar/Topbar'
 import './Dashboard.css'
 import axios from 'axios'
+import '../AnimationCircles/AnimationCircles.css'
 
-// Mock data for attendance
-const attendanceData = {
+// Mock data for payroll
+const payrollData = {
   today: [
-    { day: 'Mon', office: 75, remote: 15, absent: 10 },
-    { day: 'Tue', office: 80, remote: 12, absent: 8 },
-    { day: 'Wed', office: 70, remote: 20, absent: 10 },
-    { day: 'Thu', office: 85, remote: 10, absent: 5 },
-    { day: 'Fri', office: 65, remote: 25, absent: 10 },
-    { day: 'Sat', office: 40, remote: 10, absent: 50 },
-    { day: 'Sun', office: 30, remote: 5, absent: 65 }
+    { day: 'Mon', base: 150000, bonus: 25000, overtime: 10000 },
+    { day: 'Tue', base: 155000, bonus: 22000, overtime: 8000 },
+    { day: 'Wed', base: 148000, bonus: 20000, overtime: 12000 },
+    { day: 'Thu', base: 152000, bonus: 18000, overtime: 9000 },
+    { day: 'Fri', base: 151000, bonus: 21000, overtime: 11000 },
+    { day: 'Sat', base: 145000, bonus: 15000, overtime: 5000 },
+    { day: 'Sun', base: 142000, bonus: 12000, overtime: 4000 }
   ],
   week: [
-    { day: 'Week 1', office: 82, remote: 12, absent: 6 },
-    { day: 'Week 2', office: 78, remote: 15, absent: 7 },
-    { day: 'Week 3', office: 75, remote: 18, absent: 7 },
-    { day: 'Week 4', office: 80, remote: 14, absent: 6 }
+    { day: 'Week 1', base: 750000, bonus: 120000, overtime: 45000 },
+    { day: 'Week 2', base: 780000, bonus: 125000, overtime: 48000 },
+    { day: 'Week 3', base: 760000, bonus: 118000, overtime: 42000 },
+    { day: 'Week 4', base: 770000, bonus: 122000, overtime: 46000 }
   ],
   month: [
-    { day: 'Jan', office: 85, remote: 10, absent: 5 },
-    { day: 'Feb', office: 82, remote: 13, absent: 5 },
-    { day: 'Mar', office: 78, remote: 15, absent: 7 },
-    { day: 'Apr', office: 75, remote: 18, absent: 7 },
-    { day: 'May', office: 80, remote: 12, absent: 8 },
-    { day: 'Jun', office: 77, remote: 15, absent: 8 },
-    { day: 'Jul', office: 82, remote: 13, absent: 5 },
-    { day: 'Aug', office: 85, remote: 10, absent: 5 },
-    { day: 'Sep', office: 80, remote: 15, absent: 5 },
-    { day: 'Oct', office: 78, remote: 17, absent: 5 },
-    { day: 'Nov', office: 75, remote: 20, absent: 5 },
-    { day: 'Dec', office: 70, remote: 25, absent: 5 }
+    { day: 'Jan', base: 3200000, bonus: 480000, overtime: 180000 },
+    { day: 'Feb', base: 3180000, bonus: 475000, overtime: 178000 },
+    { day: 'Mar', base: 3220000, bonus: 485000, overtime: 182000 },
+    { day: 'Apr', base: 3150000, bonus: 470000, overtime: 175000 },
+    { day: 'May', base: 3250000, bonus: 490000, overtime: 185000 },
+    { day: 'Jun', base: 3180000, bonus: 475000, overtime: 178000 },
+    { day: 'Jul', base: 3200000, bonus: 480000, overtime: 180000 },
+    { day: 'Aug', base: 3220000, bonus: 485000, overtime: 182000 },
+    { day: 'Sep', base: 3190000, bonus: 478000, overtime: 179000 },
+    { day: 'Oct', base: 3210000, bonus: 482000, overtime: 181000 },
+    { day: 'Nov', base: 3230000, bonus: 486000, overtime: 183000 },
+    { day: 'Dec', base: 3250000, bonus: 490000, overtime: 185000 }
   ]
 }
 
@@ -77,17 +78,24 @@ const scheduleData = [
 
 function Dashboard() {
   const navigate = useNavigate()
-  const [selectedPeriod, setSelectedPeriod] = useState('today')
+  const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [isChartVisible, setIsChartVisible] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [scheduleItems, setScheduleItems] = useState(scheduleData)
+  const [isLoading, setIsLoading] = useState(true)
   const [dashboardCounts, setDashboardCounts] = useState({
     totalEmployees: 0,
-    totalProjects: 0,
-    todayAttendance: 0
+    totalApplicants: 1050,
+    totalDisbursement: 0,
+    totalLeaves: 0,
+    employeeChange: '0%',
+    applicantChange: '0%',
+    disbursementChange: '0%',
+    leavesChange: '0%'
   });
+
   const userInfo = {
-    name: 'Admin'
+    name: localStorage.getItem('userName') || 'Admin'
   }
 
   const handlePrevMonth = () => {
@@ -143,21 +151,32 @@ function Dashboard() {
     const isLoggedIn = localStorage.getItem('isLoggedIn')
     if (!isLoggedIn) {
       navigate('/login')
+      return
     }
-    // Trigger chart animation after component mount
-    setTimeout(() => setIsChartVisible(true), 800)
 
-    // Fetch dashboard counts
-    const fetchDashboardCounts = async () => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true)
       try {
         const response = await axios.get('http://localhost:3001/api/dashboard/counts')
-        setDashboardCounts(response.data)
+        if (response.data) {
+          setDashboardCounts(prev => ({
+            ...prev,
+            ...response.data,
+            employeeChange: response.data.employeeChange || '+4%',
+            applicantChange: response.data.applicantChange || '-2%',
+            attendanceChange: response.data.attendanceChange || '+6%',
+            projectChange: response.data.projectChange || '-5%'
+          }))
+        }
       } catch (error) {
         console.error('Error fetching dashboard counts:', error)
+      } finally {
+        setIsLoading(false)
+        setTimeout(() => setIsChartVisible(true), 800)
       }
     }
 
-    fetchDashboardCounts()
+    fetchDashboardData()
   }, [navigate])
 
   // Animation variants for components
@@ -202,14 +221,25 @@ function Dashboard() {
   }
 
   return (
-    <motion.div 
-      className="dashboard-container"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
+    <div className="dashboard-container">
       <SideMenu />
       <div className="dashboard-main">
+        {/* Add circles animation */}
+        <ul className="circles">
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+        </ul>
+        <ul className="circles-bottom">
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+          <li></li><li></li><li></li><li></li><li></li>
+        </ul>
+
         <Topbar 
           pageTitle={`Hello ${userInfo.name} 👋`}
           pageSubtitle="Good morning"
@@ -232,7 +262,9 @@ function Dashboard() {
               </div>
               <div className="stat-value">{dashboardCounts.totalEmployees}</div>
               <div className="stat-footer">
-                <span className="trend positive">Up to date</span>
+                <span className={`trend ${dashboardCounts.employeeChange.startsWith('+') ? 'positive' : 'negative'}`}>
+                  {dashboardCounts.employeeChange}
+                </span>
                 <span className="update-time">Update: {new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</span>
               </div>
             </motion.div>
@@ -249,24 +281,9 @@ function Dashboard() {
               </div>
               <div className="stat-value">1050</div>
               <div className="stat-footer">
-                <span className="trend positive">+4%</span>
-                <span className="update-time">Update: July 14, 2023</span>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              className="stat-card"
-              variants={itemVariants}
-              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="stat-header">
-                <span className="stat-label">Today Attendance</span>
-                <FaRegCalendarCheck className="stat-icon" />
-              </div>
-              <div className="stat-value">{dashboardCounts.todayAttendance}</div>
-              <div className="stat-footer">
-                <span className="trend positive">Up to date</span>
+                <span className={`trend ${dashboardCounts.applicantChange.startsWith('+') ? 'positive' : 'negative'}`}>
+                  {dashboardCounts.applicantChange}
+                </span>
                 <span className="update-time">Update: {new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</span>
               </div>
             </motion.div>
@@ -276,14 +293,33 @@ function Dashboard() {
               variants={itemVariants}
               whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               whileTap={{ scale: 0.98 }}
-            >
-              <div className="stat-header">
-                <span className="stat-label">Total Projects</span>
-                <FaProjectDiagram className="stat-icon" />
+            >              <div className="stat-header">
+                <span className="stat-label">Total Disbursement</span>
+                <FaRegCalendarCheck className="stat-icon" />
               </div>
-              <div className="stat-value">{dashboardCounts.totalProjects}</div>
+              <div className="stat-value">{dashboardCounts.totalDisbursement || 0}</div>
               <div className="stat-footer">
-                <span className="trend positive">Up to date</span>
+                <span className={`trend ${dashboardCounts.disbursementChange?.startsWith('+') ? 'positive' : 'negative'}`}>
+                  {dashboardCounts.disbursementChange || '0%'}
+                </span>
+                <span className="update-time">Update: {new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</span>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="stat-card"
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+              whileTap={{ scale: 0.98 }}
+            >              <div className="stat-header">
+                <span className="stat-label">Total Leaves</span>
+                <FaLeaf className="stat-icon" />
+              </div>
+              <div className="stat-value">{dashboardCounts.totalLeaves || 0}</div>
+              <div className="stat-footer">
+                <span className={`trend ${dashboardCounts.leavesChange?.startsWith('+') ? 'positive' : 'negative'}`}>
+                  {dashboardCounts.leavesChange || '0%'}
+                </span>
                 <span className="update-time">Update: {new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' })}</span>
               </div>
             </motion.div>
@@ -295,47 +331,43 @@ function Dashboard() {
               variants={chartVariants}
               initial="hidden"
               animate={isChartVisible ? "visible" : "hidden"}
-            >
-              <div className="section-header">
+            >              <div className="section-header">
                 <div className="header-left">
-                  <h2>Attendance Overview</h2>
+                  <h2>Payroll Overview</h2>
                   <div className="chart-legend">
                     <motion.div 
                       className="legend-item"
                       whileHover={{ scale: 1.05 }}
                     >
                       <div className="legend-color office"></div>
-                      <span>Office</span>
+                      <span>Base Salary</span>
                     </motion.div>
                     <motion.div 
                       className="legend-item"
                       whileHover={{ scale: 1.05 }}
                     >
                       <div className="legend-color remote"></div>
-                      <span>Remote</span>
+                      <span>Bonus</span>
                     </motion.div>
                     <motion.div 
                       className="legend-item"
                       whileHover={{ scale: 1.05 }}
                     >
                       <div className="legend-color absent"></div>
-                      <span>Absent</span>
+                      <span>Overtime</span>
                     </motion.div>
                   </div>
-                </div>
-                <select 
+                </div>                <select 
                   className="period-select"
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                 >
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
                   <option value="month">This Month</option>
                 </select>
               </div>
               <div className="attendance-chart">
                 <AnimatePresence>
-                  {attendanceData[selectedPeriod].map((data, index) => (
+                  {payrollData[selectedPeriod].map((data, index) => (
                     <motion.div 
                       key={index} 
                       className="chart-column"
@@ -346,46 +378,44 @@ function Dashboard() {
                         transition: { delay: index * 0.1 }
                       }}
                       exit={{ opacity: 0, y: -20 }}
-                    >
-                      <div className="bars">
-                        <motion.div 
+                    >                      <div className="bars">                        <motion.div 
                           className="bar office" 
                           initial={{ height: 0 }}
                           animate={{ 
-                            height: `${data.office}%`,
+                            height: `${(data.base / (selectedPeriod === 'month' ? 50000 : 20000))}%`,
                             transition: { 
                               duration: 0.8,
                               delay: index * 0.1,
                               ease: "easeOut"
                             }
                           }}
-                          title={`Office: ${data.office}%`}
+                          title={`Base Salary: ฿${data.base.toLocaleString()}`}
                         />
                         <motion.div 
                           className="bar remote" 
                           initial={{ height: 0 }}
                           animate={{ 
-                            height: `${data.remote}%`,
+                            height: `${(data.bonus / (selectedPeriod === 'month' ? 50000 : 20000))}%`,
                             transition: { 
                               duration: 0.8,
                               delay: index * 0.1 + 0.2,
                               ease: "easeOut"
                             }
                           }}
-                          title={`Remote: ${data.remote}%`}
+                          title={`Bonus: ฿${data.bonus.toLocaleString()}`}
                         />
                         <motion.div 
                           className="bar absent" 
                           initial={{ height: 0 }}
                           animate={{ 
-                            height: `${data.absent}%`,
+                            height: `${(data.overtime / (selectedPeriod === 'month' ? 50000 : 20000))}%`,
                             transition: { 
                               duration: 0.8,
                               delay: index * 0.1 + 0.4,
                               ease: "easeOut"
                             }
                           }}
-                          title={`Absent: ${data.absent}%`}
+                          title={`Overtime: ฿${data.overtime.toLocaleString()}`}
                         />
                       </div>
                       <div className="day-label">{data.day}</div>
@@ -444,13 +474,9 @@ function Dashboard() {
                       <span className={`status ${item.status.toLowerCase().replace(/\s+/g, '-')}`}>
                         {item.status}
                       </span>
-                    </div>
-                    <motion.div
-                      whileHover={{ rotate: 90 }}
-                      transition={{ duration: 0.3 }}
-                    >
+                    </div>                    <div>
                       <BsThreeDots className="more-icon" />
-                    </motion.div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -458,7 +484,7 @@ function Dashboard() {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

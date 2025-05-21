@@ -1,38 +1,54 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './FilterModal.css'
 
-function FilterModal({ isOpen, onClose, onApply }) {
+function FilterModal({ isOpen, onClose, onApply, initialFilters }) {
   const [selectedDepartments, setSelectedDepartments] = useState([])
-  const [selectedType, setSelectedType] = useState('')
+  const [selectedTypes, setSelectedTypes] = useState([])
+  const [selectedStatus, setSelectedStatus] = useState('')
 
-  const departments = [
-    'Design', 'HR', 'Sales', 'Business Analyst', 'Account',
-    'Java', 'Python', 'React JS', 'Node JS', 'Project Manager'
-  ]
+  useEffect(() => {
+    if (isOpen && initialFilters) {
+      setSelectedDepartments(initialFilters.departments || [])
+      setSelectedTypes(initialFilters.types || [])
+      setSelectedStatus(initialFilters.status || '')
+    }
+  }, [isOpen, initialFilters])
 
-  const types = ['Office', 'Work from Home']
+  const positions = ['System', 'HR', 'Programmer']
+  const types = ['Permanent', 'Freelance', 'Intern', 'Contract']
+  const statuses = ['Active', 'InActive']
 
-  const handleDepartmentToggle = (dept) => {
-    setSelectedDepartments(prev => 
-      prev.includes(dept)
-        ? prev.filter(d => d !== dept)
-        : [...prev, dept]
+  const handlePositionToggle = (pos) => {
+    setSelectedDepartments(prev =>
+      prev.includes(pos)
+        ? prev.filter(d => d !== pos)
+        : [...prev, pos]
     )
   }
 
   const handleTypeToggle = (type) => {
-    setSelectedType(prev => prev === type ? '' : type)
+    setSelectedTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
+  }
+
+  const handleStatusToggle = (status) => {
+    setSelectedStatus(prev => prev === status ? '' : status)
   }
 
   const handleReset = () => {
     setSelectedDepartments([])
-    setSelectedType('')
+    setSelectedTypes([])
+    setSelectedStatus('')
   }
 
   const handleApply = () => {
     onApply({
       departments: selectedDepartments,
-      type: selectedType
+      types: selectedTypes,
+      status: selectedStatus
     })
     onClose()
   }
@@ -43,47 +59,59 @@ function FilterModal({ isOpen, onClose, onApply }) {
     <div className="filter-modal-overlay">
       <div className="filter-modal">
         <h3>Filter</h3>
-        
         <div className="filter-section">
-          <h4>Department</h4>
+          <h4>Position</h4>
           <div className="department-grid">
-            {departments.map(dept => (
-              <div key={dept} className="department-item">
+            {positions.map(pos => (
+              <div key={pos} className="department-item">
                 <input
                   type="checkbox"
-                  id={dept}
-                  checked={selectedDepartments.includes(dept)}
-                  onChange={() => handleDepartmentToggle(dept)}
+                  id={`position-${pos}`}
+                  checked={selectedDepartments.includes(pos)}
+                  onChange={() => handlePositionToggle(pos)}
                 />
-                <label htmlFor={dept}>{dept}</label>
+                <label htmlFor={`position-${pos}`}>{pos}</label>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="filter-section select-type">
-          <h4>Select Type</h4>
-          <div className="type-options">
+        <div className="filter-section">
+          <h4>Type</h4>
+          <div className="department-grid">
             {types.map(type => (
-              <div key={type} className="type-item">
+              <div key={type} className="department-item">
                 <input
-                  type="radio"
-                  id={type}
-                  name="type"
-                  value={type}
-                  checked={selectedType === type}
+                  type="checkbox"
+                  id={`type-${type}`}
+                  checked={selectedTypes.includes(type)}
                   onChange={() => handleTypeToggle(type)}
                 />
-                <label htmlFor={type}>{type}</label>
+                <label htmlFor={`type-${type}`}>{type}</label>
               </div>
             ))}
           </div>
         </div>
-
+        <div className="filter-section select-type">
+          <h4>Status</h4>
+          <div className="type-options">
+            {statuses.map(status => (
+              <div key={status} className="type-item">
+                <input
+                  type="radio"
+                  id={status}
+                  name="status"
+                  value={status}
+                  checked={selectedStatus === status}
+                  onChange={() => handleStatusToggle(status)}
+                />
+                <label htmlFor={status}>{status}</label>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="reset-button">
           <button onClick={handleReset}>Reset</button>
         </div>
-
         <div className="filter-actions">
           <button className="cancel-btn" onClick={onClose}>
             Cancel

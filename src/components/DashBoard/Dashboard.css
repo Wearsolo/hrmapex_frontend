@@ -1,43 +1,63 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
 .dashboard-main {
-  margin-left: 200px;
+  flex: 1;
+  margin-left: 260px; /* เพิ่มจาก 240px เป็น 260px */
+  margin-top: 50px; /* ลดจาก 70px เป็น 50px */
   padding: 2rem;
-  background-color: var(--bg-primary);
+  background: #4e54c8;
+  background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);
+  background: linear-gradient(to left, #8f94fb, #4e54c8);
   min-height: calc(100vh - 56px);
-  overflow-y: auto;
+  overflow: hidden;
+  position: relative;
   transition: margin-left 0.3s ease;
 }
 
-/* เพิ่มช่องว่างด้านขวาเฉพาะสำหรับหน้า Dashboard */
-.dashboard-content {
-  max-width: calc(100% - 2rem); /* ลดความกว้างลง 2rem จากขอบขวา */
-  margin: 0;
-  padding-right: 2rem; /* เพิ่ม padding ด้านขวา */
+.dashboard-main.expanded {
+  margin-left: 120px; /* เพิ่มจาก 100px เป็น 120px */
 }
 
-/* ปรับสำหรับ sidebar แบบย่อเฉพาะหน้า Dashboard */
-[data-theme='minimized'] .dashboard-main {
-  margin-left: 60px;
+/* เพิ่ม dark mode shadow */
+[data-theme='dark'] .dashboard-main {
+  box-shadow: -10px 0 20px -5px rgba(0, 0, 0, 0.25);
 }
-  
+
+.dashboard-content {
+  position: relative;
+  z-index: 2;
+  max-width: calc(100% - 2rem);
+  margin: 4.5rem 0 1rem 0;  /* เพิ่ม margin-top เป็น 4.5rem */
+  padding-right: 2rem;
+}
+
+/* Stats Grid Styling */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+  z-index: 2;
 }
 
 .stat-card {
-  background: var(--card-bg);
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-  will-change: transform;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  border-radius: 4px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  box-shadow: 0 8px 24px rgba(99, 85, 238, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .stat-header {
@@ -48,62 +68,58 @@
 }
 
 .stat-label {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  color: #4b5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.stat-icon {
+  color: #6366f1;
+  font-size: 1.5rem;
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 600;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
+  color: #4f46e5;
+  margin: 0.5rem 0;
 }
 
 .stat-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 0.5rem;
 }
 
 .trend {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
 }
 
 .trend.positive {
-  background: #d1fae5;
-  color: #10b981;
+  background-color: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
 }
 
 .trend.negative {
-  background: #FFEBEE;
-  color: #C62828;
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
 }
 
-.update-time {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-/* Content Grid */
-.content-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-}
-
-/* Chart Section */
+/* Chart Section Styling */
 .chart-section {
-  background: #FFFFFF;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  border-radius: 4px;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(99, 86, 238, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.chart-section:hover {
-  box-shadow: 0 8px 32px rgba(99, 85, 238, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .section-header {
@@ -113,368 +129,212 @@
   margin-bottom: 1.5rem;
 }
 
-.header-left {
-  display: flex;
-  align-items: center;  /* เปลี่ยนจาก flex-direction: column เป็น align-items: center */
-  gap: 1.5rem;
+.header-left h2 {
+  color: #374151;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .chart-legend {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-right: auto; /* ทำให้ legend อยู่ทางซ้าย */
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-right: auto; /* ทำให้ legend อยู่ทางซ้าย */
+  gap: 2rem;  /* Increased gap between legend items */
+  padding: 0.5rem 0;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #6B7280;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.legend-item:hover {
-  background: rgba(99, 85, 238, 0.08);
-  transform: translateX(4px);
 }
 
 .legend-color {
-  width: 10px;
-  height: 10px;
+  width: 16px;  /* Match bar width */
+  height: 16px;  /* Made square */
   border-radius: 2px;
 }
 
-.legend-color.office { background-color: #6355EE; } /* สีม่วงเข้ม */
-.legend-color.remote { background-color: #9B93FF; } /* สีม่วงกลาง */
-.legend-color.absent { background-color: #D4D0FF; } /* สีม่วงอ่อน */
+.legend-color.office { background-color: #6366f1; }
+.legend-color.remote { background-color: #818cf8; }
+.legend-color.absent { background-color: #e5e7eb; }
 
-/* Chart Grid */
-.attendance-chart {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  height: 250px;
-  padding: 1rem 0;
-  gap: 0.5rem;
-  overflow-x: auto;
+/* Schedule Section Styling */
+.schedule-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  border-radius: 4px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
   position: relative;
+  z-index: 2;
 }
 
-/* Hide scrollbar but keep functionality */
-.attendance-chart::-webkit-scrollbar {
-  height: 6px;
-}
-
-.attendance-chart::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.attendance-chart::-webkit-scrollbar-thumb {
-  background-color: rgba(113, 82, 243, 0.2);
-  border-radius: 3px;
-}
-
-.chart-column {
-  flex: 1;
-  min-width: 40px;
+.schedule-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-/* Specific widths for different periods */
-[value="today"] ~ .attendance-chart .chart-column {
+.schedule-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 2px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.schedule-item:hover {
+  transform: translateX(2px);
+  background: #f3f4f6;
+}
+
+.time {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4f46e5;
   min-width: 60px;
 }
 
-[value="week"] ~ .attendance-chart .chart-column {
-  min-width: 100px;
+.event h4 {
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
 }
 
-[value="month"] ~ .attendance-chart .chart-column {
-  min-width: 70px;
+.event p {
+  color: #6b7280;
+  font-size: 0.85rem;
 }
 
-.bars {
-  width: 100%;
-  height: 200px;
-  display: flex;
-  gap: 2px;
-  align-items: flex-end;
-  position: relative;
-}
-
-.bar {
-  flex: 1;
-  background: #f3f2ff;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.6s ease;
-}
-
-.bar.office {
-  background: #7152f3;
-}
-
-.bar.remote {
-  background: #a799ff;
-}
-
-.bar.absent {
-  background: #e4e2ff;
-}
-
-.day-label {
+.status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
   font-size: 0.75rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
+  font-weight: 500;
 }
 
-/* Period select styling */
+.status.upcoming {
+  background-color: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+}
+
+.status.on-time {
+  background-color: rgba(16, 185, 129, 0.08);
+  color: #047857;
+}
+
+.status.late {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #b91c1c;
+}
+
+/* Period Select Styling */
 .period-select {
   padding: 0.5rem 1rem;
-  border-radius: 8px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 0.85rem;
+  border-radius: 2px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .period-select:hover {
-  border-color: #7152f3;
+  border-color: #6366f1;
 }
 
-.period-select:focus {
-  outline: none;
-  border-color: #7152f3;
-  box-shadow: 0 0 0 2px rgba(113, 82, 243, 0.1);
-}
-
-.schedule-section {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(99, 86, 238, 0.05);
-  height: 100%;
-  overflow: hidden;
-}
-
-.schedule-section .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.schedule-section h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
+/* Calendar Navigation */
 .calendar-nav {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem 0;
-}
-
-.calendar-nav span {
-  font-weight: 500;
-  color: var(--text-primary);
-  font-size: 1rem;
 }
 
 .nav-btn {
   background: none;
   border: none;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
+  color: #4f46e5;
+  font-size: 1.25rem;
   cursor: pointer;
   padding: 0.25rem;
   transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  outline: none;  /* Remove outline */
 }
 
 .nav-btn:hover {
-  background-color: rgba(113, 82, 243, 0.1);
-  color: #7152f3;
+  color: #6366f1;
 }
 
-.nav-btn:focus {
-  outline: none;  /* Remove outline on focus */
-}
-
-.schedule-list {
-  overflow-y: auto;
-  max-height: calc(100% - 4rem);
-  padding-right: 0.5rem;
-}
-
-.schedule-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.schedule-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.schedule-list::-webkit-scrollbar-thumb {
-  background-color: rgba(113, 82, 243, 0.2);
-  border-radius: 3px;
-}
-
-.schedule-item {
+/* Attendance Chart */
+.attendance-chart {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 0.75rem;
-  background: var(--bg-secondary);
-  transition: all 0.3s ease;
-  cursor: pointer;
+  gap: 0.75rem;  /* Reduced gap to accommodate wider bars */
+  height: 250px;
+  align-items: flex-end;
+  padding: 1.5rem 0.5rem;  /* Added horizontal padding */
 }
 
-.schedule-item:hover {
-  background: rgba(113, 82, 243, 0.05);
-}
-
-.time {
-  min-width: 60px;
-  font-weight: 500;
-  color: #7152f3;
-  font-size: 0.9rem;
-}
-
-.event {
+.chart-column {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.event h4 {
-  margin: 0 0 0.25rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.bars {
+  height: 200px;
+  display: flex;
+  gap: 3px;  /* Slightly increased gap between bars in the same column */
+  align-items: flex-end;
+  min-width: 45px;  /* Ensure minimum width for the bar group */
 }
 
-.event p {
-  margin: 0 0 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+.bar {
+  width: 14px;  /* Increased bar width */
+  transition: height 0.3s ease;
 }
 
-.status {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
+.bar.office { 
+  background-color: #6366f1;
+  width: 16px;  /* Slightly wider for office attendance */ 
 }
 
-.status.on-time {
-  background: #d1fae5;
-  color: #10b981;
+.bar.remote { 
+  background-color: #818cf8;
+  width: 16px;  /* Match office width */
 }
 
-.status.upcoming {
-  background: #e0f2fe;
-  color: #0ea5e9;
+.bar.absent { 
+  background-color: #e5e7eb;
+  width: 16px;  /* Match other bars */
 }
 
-.status.late {
-  background: #fee2e2;
-  color: #ef4444;
+.day-label {
+  font-size: 0.9rem;  /* Slightly larger font */
+  color: #4b5563;  /* Darker color for better readability */
+  font-weight: 500;  /* Made slightly bolder */
 }
 
 .more-icon {
-  color: var(--text-secondary);
+  color: #94a3b8;
   font-size: 1.25rem;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-.schedule-item:hover .more-icon {
-  opacity: 1;
+.more-icon:hover {
+  color: #6366f1;
+  transform: rotate(90deg);
 }
 
-.attendance-section {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(99, 86, 238, 0.05);
-  margin-bottom: 2rem;
-}
-
-.attendance-table-wrapper {
-  overflow-x: auto;
-  margin-top: 1rem;
-}
-
-.attendance-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.attendance-table th,
-.attendance-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.attendance-table th {
-  font-weight: 600;
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-}
-
-.attendance-table tr:hover {
-  background-color: var(--bg-secondary);
-}
-
-.attendance-status {
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.attendance-status.on-time {
-  background: #d1fae5;
-  color: #10b981;
-}
-
-.attendance-status.late {
-  background: #fee2e2;
-  color: #ef4444;
-}
-
-/* Dark mode support */
-[data-theme='dark'] .attendance-section {
-  background: var(--card-bg);
-}
-
-[data-theme='dark'] .attendance-table th {
-  background: rgba(255, 255, 255, 0.05);
+/* เมื่อเอาเมาส์ออกจะหมุนกลับ */
+.more-icon {
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
 }

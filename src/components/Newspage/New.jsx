@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FiEdit, FiTrash2, FiEye, FiPlus, FiPaperclip, FiSearch, FiClock, FiFile, FiDownload, FiStar } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiEye, FiPlus, FiPaperclip, FiSearch, FiClock, FiFile, FiDownload, FiStar, FiBell, FiActivity, FiTerminal, FiLock, FiUnlock } from 'react-icons/fi';
 import './New.css';
+import './EditNewsModal.css';
 import SideMenu from "../SideMenu/Side_menu";
 import Topbar from "../Topbar/Topbar";
 
 const API_URL = 'http://localhost:3001/api/news';
+
+const isImageFile = (filename) => {
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  const extension = filename?.split('.').pop()?.toLowerCase();
+  return imageExtensions.includes(extension);
+};
 
 function New() {
   const navigate = useNavigate();
@@ -25,6 +32,8 @@ function New() {
   const [search, setSearch] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [hiddenNews, setHiddenNews] = useState(new Set());
+  const [pinnedNews, setPinnedNews] = useState(new Set()); // Add pinnedNews state
 
   const categories = [
     { value: 'Announcement', label: 'Announcement' },
@@ -47,18 +56,46 @@ function New() {
       return new Date(b.CreatedAt) - new Date(a.CreatedAt);
     });
     setNews(sortedNews);
+
+    // Initialize both pinned and hidden states from database
+    const hiddenSet = new Set(
+      sortedNews.filter(item => item.Hidenews === 1).map(item => item.NewsId)
+    );
+    const pinnedSet = new Set(
+      sortedNews.filter(item => item.isPinned === 1).map(item => item.NewsId)
+    );
+    setHiddenNews(hiddenSet);
+    setPinnedNews(pinnedSet);
   };
 
-  const handleTogglePin = async (newsId, currentPinned) => {
+  const handleTogglePin = async (newsId) => {
     try {
-      await axios.put(`${API_URL}/${newsId}/toggle-pin`, {
-        isPinned: !currentPinned
+      const isCurrentlyPinned = pinnedNews.has(newsId);
+      
+      const response = await axios.put(`${API_URL}/${newsId}/toggle-pin`, {
+        isPinned: !isCurrentlyPinned ? 1 : 0
       });
-      // Refresh the news list after toggling pin
-      await fetchNews();
+
+      if (response.data.success) {
+        // Update local state
+        setPinnedNews(prev => {
+          const newSet = new Set(prev);
+          if (newSet.has(newsId)) {
+            newSet.delete(newsId);
+          } else {
+            newSet.add(newsId);
+          }
+          return newSet;
+        });
+
+        // Refresh the news list to update sorting
+        await fetchNews();
+      } else {
+        throw new Error(response.data.message || 'Failed to update pin status');
+      }
     } catch (error) {
       console.error('Error toggling pin status:', error);
-      alert('Failed to update pin status. Please try again.');
+      alert(error.response?.data?.error || error.message || 'Failed to update pin status. Please try again.');
     }
   };
 
@@ -172,25 +209,46 @@ function New() {
     setViewModalOpen(true);
   };
 
+  // Add this function to handle visibility toggle
+  const handleToggleVisibility = async (newsId) => {
+    try {
+      // Get the current hidden state
+      const isCurrentlyHidden = hiddenNews.has(newsId);
+      
+      // Update the database
+      await axios.put(`${API_URL}/${newsId}/toggle-visibility`, {
+        Hidenews: !isCurrentlyHidden ? 1 : 0
+      });
+
+      // Update local state
+      setHiddenNews(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(newsId)) {
+          newSet.delete(newsId);
+        } else {
+          newSet.add(newsId);
+        }
+        return newSet;
+      });
+    } catch (error) {
+      console.error('Error toggling visibility:', error);
+      alert('Failed to update visibility status. Please try again.');
+    }
+  };
+
   return (
-    <div className="addnews-bg dashboard-container">
-      <SideMenu />
+    <div className="dashboard-container">
       <div className="dashboard-main">
-        {/* วงกลมพื้นหลังอนิเมชั่น */}
         <ul className="circles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
+          {[...Array(15)].map((_, i) => (
+            <li key={i}></li>
+          ))}
         </ul>
-        <Topbar pageTitle="News" pageSubtitle="All News" />
+        
+        <SideMenu />
         <div className="dashboard-content">
+          <Topbar pageTitle="News" pageSubtitle="Company News & Announcements" />
+          
           <div className="news-card">
             <div className="news-toolbar">
               <div className="news-search-wrap">
@@ -203,11 +261,11 @@ function New() {
                   onChange={e => setSearch(e.target.value)}
                 />
               </div>
-              {/* Modify the Add News button to use the new handler */}
               <button className="btn-add-news" onClick={handleAddNews}>
                 <FiPlus /> Add News
               </button>
             </div>
+            
             <div className="news-list-table">
               <table className="news-table">
                 <thead>
@@ -222,20 +280,44 @@ function New() {
                   {filteredNews.length === 0 ? (
                     <tr><td colSpan="4" className="no-news">No news found</td></tr>
                   ) : filteredNews.map(item => (
-                    <tr key={item.NewsId} className={item.isPinned ? 'pinned' : ''}>
+                    <tr 
+                      key={item.NewsId} 
+                      className={`
+                        ${pinnedNews.has(item.NewsId) ? 'pinned' : ''} 
+                        ${hiddenNews.has(item.NewsId) ? 'hidden-row' : ''}
+                      `}
+                    >
                       <td>{item.Title}</td>
-                      <td>{item.Category}</td>
+                      <td>
+                        <div className={`button ${item.Category.toLowerCase()}`}>
+                          {item.Category === 'Announcement' ? (
+                            <FiBell className="category-icon" />
+                          ) : item.Category === 'Activity' ? (
+                            <FiActivity className="category-icon" />
+                          ) : (
+                            <FiTerminal className="category-icon" />
+                          )}
+                          <span className="lable">{item.Category}</span>
+                        </div>
+                      </td>
                       <td>{item.CreatedAt ? new Date(item.CreatedAt).toLocaleDateString() : '-'}</td>
                       <td className="action-col">
                         <button 
-                          className={`icon-btn action-pin ${item.isPinned ? 'pinned' : ''}`} 
-                          title={item.isPinned ? "Unpin" : "Pin"}
-                          onClick={() => handleTogglePin(item.NewsId, item.isPinned)}
+                          className={`icon-btn action-pin ${pinnedNews.has(item.NewsId) ? 'pinned' : ''}`} 
+                          title={pinnedNews.has(item.NewsId) ? "Unpin" : "Pin"}
+                          onClick={() => handleTogglePin(item.NewsId)}
                         >
                           <FiStar />
                         </button>
                         <button className="icon-btn action-view" title="View" onClick={() => handleView(item)}><FiEye /></button>
                         <button className="icon-btn action-edit" title="Edit" onClick={() => handleOpenModal(item)}><FiEdit /></button>
+                        <button 
+                          className={`icon-btn action-hide ${hiddenNews.has(item.NewsId) ? 'hidden' : ''}`} 
+                          title={hiddenNews.has(item.NewsId) ? "Show" : "Hide"}
+                          onClick={() => handleToggleVisibility(item.NewsId)}
+                        >
+                          {hiddenNews.has(item.NewsId) ? <FiUnlock /> : <FiLock />}
+                        </button>
                         <button className="icon-btn action-delete" title="Delete" onClick={() => handleDelete(item.NewsId)}><FiTrash2 /></button>
                       </td>
                     </tr>
@@ -250,13 +332,13 @@ function New() {
       {/* Edit/Add Modal */}
       {modalOpen && (
         <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
+          <div className="edit-modal">
+            <div className="edit-modal-header">
               <h3>{editItem ? 'Edit News' : 'Add News'}</h3>
-              <button className="close-btn" onClick={handleCloseModal}>×</button>
+              <button className="edit-close-btn" onClick={handleCloseModal}>×</button>
             </div>
-            <form onSubmit={handleSubmit} className="news-form">
-              <div className="form-group">
+            <form onSubmit={handleSubmit} className="edit-news-form">
+              <div className="edit-form-group">
                 <label>Title</label>
                 <input 
                   name="title" 
@@ -266,14 +348,13 @@ function New() {
                   placeholder="Enter news title"
                 />
               </div>
-              <div className="form-group">
+              <div className="edit-form-group">
                 <label>Category</label>
                 <select
                   name="category"
                   value={form.category}
                   onChange={handleChange}
                   required
-                  className="category-select"
                 >
                   <option value="">Select category</option>
                   {categories.map(cat => (
@@ -283,7 +364,7 @@ function New() {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
+              <div className="edit-form-group">
                 <label>Content</label>
                 <textarea 
                   name="content" 
@@ -294,33 +375,40 @@ function New() {
                   rows="6"
                 />
               </div>
-              <div className="form-group">
+              <div className="edit-form-group">
                 <label>Attachment</label>
-                <div className="file-input-wrapper">
+                <div className="edit-file-input-wrapper">
                   <input 
                     type="file" 
                     name="attachment" 
                     onChange={handleChange} 
                     accept=".pdf,.jpg,.jpeg,.png" 
                     id="file-upload"
+                    style={{ display: 'none' }}
                   />
-                  <label htmlFor="file-upload" className="file-upload-label">
-                    <FiPaperclip /> Choose a file
+                  <label htmlFor="file-upload" className="edit-file-upload-label">
+                    <FiPaperclip /> {form.attachment ? 'Change file' : 'Choose a file'}
                   </label>
+                  {form.attachment && (
+                    <div className="selected-file">
+                      <FiFile /> {form.attachment.name}
+                    </div>
+                  )}
                 </div>
                 {preview && (
-                  <div className="file-preview">
+                  <div className="edit-file-preview">
                     <a href={preview} target="_blank" rel="noopener noreferrer">
-                      {form.attachment ? form.attachment.name : 'View file'}
+                      <FiFile />
+                      <span>Current attachment - Click to preview</span>
                     </a>
                   </div>
                 )}
               </div>
-              <div className="modal-actions">
-                <button type="button" onClick={handleCloseModal} className="modal-btn btn-cancel">
+              <div className="edit-modal-actions">
+                <button type="button" onClick={handleCloseModal} className="edit-modal-btn edit-btn-cancel">
                   Cancel
                 </button> 
-                <button type="submit" className="modal-btn btn-save">
+                <button type="submit" className="edit-modal-btn edit-btn-save">
                   {editItem ? 'Update' : 'Save'}
                 </button>
               </div>
@@ -332,34 +420,18 @@ function New() {
       {/* Delete Confirmation Modal */}
       {deleteModalOpen && (
         <div className="modal-overlay">
-          <div className="delete-confirm-modal">
-            <div className="modal-header">
-              <h3>Delete News</h3>
-              <button 
-                className="close-btn" 
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setSelectedNews(null);
-                }}
-              >×</button>
+          <div className="delete-modal">
+            <div className="delete-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 7V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V7M6 7H5M6 7H8M18 7H19M18 7H16M10 11V16M14 11V16M8 7V5C8 4.44772 8.44772 4 9 4H15C15.5523 4 16 4.44772 16 5V7M8 7H16" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-            <p>Are you sure you want to delete this news? This action cannot be undone.</p>
-            <div className="modal-actions">
-              <button 
-                className="modal-btn btn-cancel"
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setSelectedNews(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                className="modal-btn btn-delete"
-                onClick={confirmDelete}
-              >
-                Delete
-              </button>
+            <h2>Delete News</h2>
+            <p>This action cannot be undone.</p>
+            <div className="modal-buttons">
+              <button className="cancel-button" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
+              <button className="delete-button" onClick={confirmDelete}>Delete</button>
             </div>
           </div>
         </div>
@@ -368,9 +440,21 @@ function New() {
       {/* View Modal */}
       {viewModalOpen && selectedItem && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal view-modal">
             <div className="modal-header">
-              <h3>View News</h3>
+              <div className="modal-title">
+                <h3>{selectedItem.Title}</h3>
+                <div className={`button ${selectedItem.Category.toLowerCase()}`}>
+                  {selectedItem.Category === 'Announcement' ? (
+                    <FiBell className="category-icon" />
+                  ) : selectedItem.Category === 'Activity' ? (
+                    <FiActivity className="category-icon" />
+                  ) : (
+                    <FiTerminal className="category-icon" />
+                  )}
+                  <span className="lable">{selectedItem.Category}</span>
+                </div>
+              </div>
               <button 
                 className="close-btn" 
                 onClick={() => {
@@ -379,68 +463,54 @@ function New() {
                 }}
               >×</button>
             </div>
-            <div className="news-form view-only">
-              <div className="form-group">
-                <label>Title</label>
-                <input 
-                  value={selectedItem.Title} 
-                  readOnly
-                  className="view-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>Category</label>
-                <input
-                  value={selectedItem.Category}
-                  readOnly
-                  className="view-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>Content</label>
-                <textarea 
-                  value={selectedItem.Content} 
-                  readOnly
-                  className="view-input"
-                  rows="6"
-                />
-              </div>
-              {selectedItem.Attachment && (
-                <div className="form-group">
-                  <label>Attachment</label>
-                  <div className="file-preview">
-                    <a href={`/uploads/${selectedItem.Attachment}`} target="_blank" rel="noopener noreferrer">
-                      <FiPaperclip />
-                      <span>{selectedItem.Attachment}</span>
-                    </a>
-                  </div>
-                </div>
-              )}
-              <div className="form-group">
-                <label>Created At</label>
-                <input
-                  value={new Date(selectedItem.CreatedAt).toLocaleDateString('en-US', {
+            <div className="view-content">
+              <div className="view-meta">
+                <div className="created-at">
+                  <FiClock className="meta-icon" />
+                  {new Date(selectedItem.CreatedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
-                  readOnly
-                  className="view-input"
-                />
+                </div>
               </div>
-              <div className="modal-actions">
-                <button 
-                  className="modal-btn btn-cancel" 
-                  onClick={() => {
-                    setViewModalOpen(false);
-                    setSelectedItem(null);
-                  }}
-                >
-                  Close
-                </button>
+              
+              <div className="content-section">
+                <div className="content-box">
+                  {selectedItem.Content}
+                </div>
               </div>
+
+              {selectedItem.Attachment && (
+                <div className="attachment-section">
+                  <div className="attachment-header">
+                    <FiPaperclip className="attachment-icon" />
+                    Attachment
+                  </div>
+                  <div className="attachment-preview">
+                    {isImageFile(selectedItem.Attachment) ? (
+                      <div className="image-preview-container">
+                        <img 
+                          src={`/uploads/${selectedItem.Attachment}`} 
+                          alt="News attachment"
+                          className="attachment-image"
+                        />
+                      </div>
+                    ) : (
+                      <a 
+                        href={`/uploads/${selectedItem.Attachment}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="attachment-link"
+                      >
+                        <span className="filename">{selectedItem.Attachment}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

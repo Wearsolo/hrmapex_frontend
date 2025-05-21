@@ -9,28 +9,21 @@ function ResetPassword() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [error, setError] = useState('') // State for error message
   const navigate = useNavigate()
 
   const handleResetPassword = () => {
+    if (password !== confirmPassword) {
+      setError('Passwords do not match!') // Set error message
+      return
+    }
+    setError('') // Clear error if passwords match
     setIsPopupOpen(true)
   }
 
   return (
     <>
-      <div className="login-container">
-        <div className="login-left">
-          <ul className="circles">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-          </ul>
+      <div className="login-container">        <div className="login-left">
           <img src={bgDashboard} alt="bg" className="dashboard-preview" />
         </div>
         <div className="login-right">
@@ -72,6 +65,9 @@ function ResetPassword() {
                 className="input"
               />
             </div>
+
+            {/* Error message */}
+            {error && <p className="error-message">{error}</p>}
 
             <button className="login-button" onClick={handleResetPassword}>
               Reset Password

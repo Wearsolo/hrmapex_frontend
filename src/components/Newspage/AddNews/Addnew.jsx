@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiUpload } from 'react-icons/fi'
+import { FiUpload, FiFile } from 'react-icons/fi'
 import axios from 'axios'
 import SideMenu from '../../SideMenu/Side_menu'
 import Topbar from '../../Topbar/Topbar'
@@ -9,16 +9,23 @@ import './Addnew.css'
 
 const API_URL = 'http://localhost:3001/api/news'
 
+const truncateFileName = (fileName) => {
+  if (fileName.length <= 20) return fileName;
+  const extension = fileName.split('.').pop();
+  const name = fileName.substring(0, fileName.lastIndexOf('.'));
+  return `${name.substring(0, 10)}...${extension}`;
+};
+
 function AddNew() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     content: '',
-    document: null,
+    documents: [],
     createdDate: new Date().toISOString().split('T')[0]
   })
-
+  const [uploadedFiles, setUploadedFiles] = useState([])
   const [errors, setErrors] = useState({})
   const [showConfirmation, setShowConfirmation] = useState(false)
 
@@ -36,15 +43,23 @@ function AddNew() {
       }))
     }
   }
-
   const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
+    const files = Array.from(e.target.files)
+    if (files.length > 0) {
       setFormData(prev => ({
         ...prev,
-        document: file
+        documents: [...prev.documents, ...files]
       }))
+      setUploadedFiles(prev => [...prev, ...files])
     }
+  }
+
+  const handleRemoveFile = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      documents: prev.documents.filter((_, i) => i !== index)
+    }))
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
   }
 
   const validateForm = () => {
@@ -72,22 +87,31 @@ function AddNew() {
       setShowConfirmation(true)
     }
   }
-
   const handleConfirmSubmit = async () => {
     try {
-      // Create form data to send
-      const newsData = {
-        title: formData.title,
-        category: formData.category,
-        content: formData.content,
-        createdDate: formData.createdDate
+      // Create FormData object to send multipart/form-data
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('content', formData.content);
+      formDataToSend.append('createdDate', formData.createdDate);
+      
+      // Handle multiple document uploads
+      if (formData.documents && formData.documents.length > 0) {
+        formData.documents.forEach((file, index) => {
+          formDataToSend.append('documents', file)
+        })
       }
 
       // Send the data to the server
-      const response = await axios.post(API_URL, newsData)
+      const response = await axios.post(API_URL, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
 
       if (response.data) {
-        navigate('/news') // Navigate back to news list without alert
+        navigate('/news')
       }
     } catch (error) {
       console.error('Error submitting form:', error)
@@ -98,18 +122,98 @@ function AddNew() {
   const handleCancel = () => {
     navigate('/news')
   }
+  const FileUploadSection = () => {
+    const [isDragOver, setIsDragOver] = useState(false);
+    
+    const handleDragOver = (e) => {
+      e.preventDefault();
+      setIsDragOver(true);
+    };
+
+    const handleDragLeave = () => {
+      setIsDragOver(false);
+    };
+
+    const handleDrop = (e) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          documents: [...prev.documents, ...files]
+        }));
+        setUploadedFiles(prev => [...prev, ...files]);
+      }
+    };
+
+    return (
+      <div className="upload-section">
+        <div 
+          className={`upload-area-doc ${isDragOver ? 'drag-over' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <label className="upload-label">
+            <div className="upload-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
+            <span className="supported-text">Supported formats: PDF, DOC, DOCX, JPG, JPEG, PNG</span>
+            <input 
+              type="file" 
+              style={{ display: 'none' }}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              onChange={handleFileUpload}
+              multiple
+            />
+          </label>
+        </div>
+        {uploadedFiles.length > 0 && (
+          <div className="uploaded-files-container">
+            {uploadedFiles.map((file, index) => (
+              <div key={index} className="uploaded-file-info">
+                <div className="file-info-left">
+                  <FiFile />
+                  <span title={file.name}>{truncateFileName(file.name)}</span>
+                </div>
+                <button
+                  type="button"
+                  className="remove-file-btn"
+                  onClick={() => handleRemoveFile(index)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="addnews-bg dashboard-container">
+    <div className="dashboard-container">
       <SideMenu />
       <div className="dashboard-main">
         <ul className="circles">
-          {[...Array(22)].map((_, i) => <li key={i}></li>)}
+          {[...Array(15)].map((_, i) => (
+            <li key={`top-${i}`}></li>
+          ))}
         </ul>
-        <Topbar 
-          pageTitle="Add News" 
-          pageSubtitle="News>Add News" 
-        />
+        
+        <ul className="circles-bottom">
+          {[...Array(15)].map((_, i) => (
+            <li key={`bottom-${i}`}></li>
+          ))}
+        </ul>
+
+        <Topbar pageTitle="Add News" pageSubtitle="Create a new announcement" />
         
         <motion.div 
           className="dashboard-content"
@@ -160,22 +264,7 @@ function AddNew() {
 
               <div className="form-group">
                 <label>Document</label>
-                <div className="upload-area-doc">
-                  <input
-                    type="file"
-                    id="news-document"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg"
-                    onChange={handleFileUpload}
-                    hidden
-                  />
-                  <label htmlFor="news-document" className="upload-label">
-                    <div className="upload-icon">
-                      <FiUpload />
-                    </div>
-                    <p>Drag & Drop or <span className="choose-text">choose file</span> to upload</p>
-                    <p className="supported-text">Supported formats: .pdf, .doc, .docx, .jpg, .jpeg</p>
-                  </label>
-                </div>
+                <FileUploadSection />
               </div>
 
               <div className="form-group">

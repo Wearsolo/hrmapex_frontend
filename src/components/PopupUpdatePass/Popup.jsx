@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import './Popup.css'
-import partyPopper from '../../assets/party-popper.png'
 
 const PopupUpdatePass = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
@@ -26,16 +25,15 @@ const PopupUpdatePass = ({ isOpen, onClose }) => {
   return (
     <>
       {isOpen && (
-        <div className={`popup-overlay ${isClosing ? 'closing' : ''}`}>
-          <div className={`popup-content ${isClosing ? 'closing' : ''}`}>
-            <img 
-              src={partyPopper} 
-              alt="Success" 
-              className="success-icon"
-            />
-            <h2 className="popup-title">Password Update Successfully</h2>
+        <div className={`popup-overlay ${isClosing ? 'closing' : ''}`}>          <div className={`popup-content ${isClosing ? 'closing' : ''}`}>
+            <div className="success-animation">
+              <div className="checkmark-circle">
+                <div className="checkmark-check"></div>
+              </div>
+            </div>
+            <h2 className="popup-title">Password Updated Successfully!</h2>
             <p className="popup-message">
-              Your password has been update successfully
+              Your password has been changed successfully. Please use your new password to login.
             </p>
             <button 
               className="back-to-login-button"
