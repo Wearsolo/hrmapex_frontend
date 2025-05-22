@@ -40,19 +40,16 @@ A modern, full-featured HR management platform built with **React (Vite)** and *
 > Ensure Node.js is installed
 
 ```bash
-# 1. Clone the project
-git clone https://gitlab.com/yourusername/hrmanagement.git
-
-# 2. Navigate to the project
+# 1. Navigate to the project
 cd hrmanagement
 
-# 3. Install dependencies
+# 2. Install dependencies
 npm install
 
-# 4. Start backend server
+# 3. Start backend server
 node server/index.js
 
-# 5. Start frontend development server
+# 4. Start frontend development server
 npm run dev
 ```
 
