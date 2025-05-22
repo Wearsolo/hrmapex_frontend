@@ -170,9 +170,15 @@ function Login() {
                 className={`input ${formErrors.email ? 'error' : ''}`}
                 autoComplete="username"
               />
-            </div>
-            {formErrors.email && (
-              <div className="error-text">{formErrors.email}</div>
+            </div>            {formErrors.email && (
+              <motion.div 
+                className="error-text"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+              >
+                {formErrors.email}
+              </motion.div>
             )}
 
             {/* Password input with icon and toggle */}
@@ -202,9 +208,15 @@ function Login() {
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
-            </div>
-            {formErrors.password && (
-              <div className="error-text">{formErrors.password}</div>
+            </div>            {formErrors.password && (
+              <motion.div 
+                className="error-text"
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+              >
+                {formErrors.password}
+              </motion.div>
             )}
 
             {error && (
