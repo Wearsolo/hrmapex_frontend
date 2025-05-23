@@ -328,6 +328,12 @@ const ProfileDetail = () => {
                 value={editData.Address || ''}
                 onChange={handleInputChange}
                 className="edit-input"
+                style={{
+                  border: '1px solid #cbd5e1', // สีเทาอ่อน
+                  borderRadius: '10px',
+                  background: '#fff',
+                  boxSizing: 'border-box'
+                }}
               />
             ) : (
               <span className="info-value">{employeeData?.Address || '-'}</span>
@@ -391,6 +397,20 @@ const ProfileDetail = () => {
           <span className="info-value">{employeeData?.EmployeeId || '-'}</span>
         </div>
         <div className="info-item">
+          <label>Username</label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="Username"
+              value={editData.Username || ''}
+              onChange={handleInputChange}
+              className="edit-input"
+            />
+          ) : (
+            <span className="info-value">{employeeData?.Username || '-'}</span>
+          )}
+        </div>
+        <div className="info-item">
           <label>Position</label>
           {isEditing ? (
             <input
@@ -404,8 +424,6 @@ const ProfileDetail = () => {
             <span className="info-value">{employeeData?.Position || '-'}</span>
           )}
         </div>
-      </div>
-      <div className="info-row">
         <div className="info-item">
           <label>Type</label>
           {isEditing ? (
@@ -425,6 +443,8 @@ const ProfileDetail = () => {
             <span className="info-value">{employeeData?.Type || '-'}</span>
           )}
         </div>
+      </div>
+      <div className="info-row">
         <div className="info-item">
           <label>Salary</label>
           {isEditing ? (
@@ -441,8 +461,6 @@ const ProfileDetail = () => {
             </span>
           )}
         </div>
-      </div>
-      <div className="info-row">
         <div className="info-item">
           <label>Start Date</label>
           {isEditing ? (
@@ -2104,7 +2122,7 @@ const ProfileDetail = () => {
                     onChange={handleProfileImageChange}
                   />
                   <div className="profile-image-overlay">
-                    <svg width="32" height="32" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M2 7.5V17a2.5 2.5 0 0 0 2.5 2.5h15A2.5 2.5 0 0 0 22 17V7.5M16.5 7.5l-1.38-2.07A2 2 0 0013.5 4.5h-3a2 2 0 00-1.62.93L7.5 7.5"/></svg>
+                    <svg width="32" height="32" fill="none" stroke="#fff" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M2 7.5V17a2.5 2.5 0 0 1 2.5 2.5h15A2.5 2.5 0 0 1 22 17V7.5M16.5 7.5l-1.38-2.07A2 2 0 0013.5 4.5h-3a2 2 0 00-1.62.93L7.5 7.5"/></svg>
                   </div>
                 </>
               )}
