@@ -91,9 +91,27 @@ function Login() {
     
     if (!validateForm()) {
       return
-    }
+    }    try {
+      // Check for user credentials
+      if (email === 'user@gmail.com' && password === '111111') {
+        // Handle Remember Me
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email)
+          localStorage.setItem('rememberedPassword', password)
+        } else {
+          localStorage.removeItem('rememberedEmail')
+          localStorage.removeItem('rememberedPassword')
+        }
 
-    try {
+        // Store login status and auth info for user
+        localStorage.setItem('isLoggedIn', 'true')
+        localStorage.setItem('userRole', 'user')
+        localStorage.setItem('token', 'user-token')
+        navigate('/home') // Redirect to Home.jsx for user
+        return
+      }
+
+      // For other credentials, proceed with API call
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
@@ -117,8 +135,8 @@ function Login() {
         // Store login status and auth info
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userRole', data.user.role)
-        localStorage.setItem('token', data.token) // เพิ่มการเก็บ token
-        navigate('/all-employees')
+        localStorage.setItem('token', data.token)
+        navigate('/all-employees') // Admin will go to all-employees
       } else {
         setError(data.message || 'Invalid email or password')
       }

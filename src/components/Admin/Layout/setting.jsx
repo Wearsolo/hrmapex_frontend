@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiUser, FiLock, FiMonitor, FiBell, FiMail, FiShield } from 'react-icons/fi';
 import SideMenu from '../SideMenu/Side_menu';
 import Topbar from '../Topbar/Topbar';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../../context/ThemeContext';
 import './setting.css';
 
 const Setting = () => {

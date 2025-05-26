@@ -5,6 +5,7 @@ import Topbar from '../Topbar/Topbar';
 import { FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 import './Account.css';
 import '../AnimationCircles/AnimationCircles.css';
+import { useNavigate } from 'react-router-dom';
 
 const Account = () => {
   const [accounts, setAccounts] = useState([]);
@@ -12,6 +13,9 @@ const Account = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -21,12 +25,13 @@ const Account = () => {
         // Transform employee data to account format using username from database
         const accountData = response.data.map(emp => ({
           id: emp.EmployeeId,
+          employeeId: emp.EmployeeId, // Add this line
           fullName: `${emp.FName} ${emp.LName}`,
           nickname: emp.Nickname || '-',
-          username: emp.username || '-', // Use username field from database
+          username: emp.username || '-',
           email: emp.Email || '-',
-          phone: emp.MobileNumber || '-',
-          status: emp.Status || 'Inactive'
+          status: emp.Status || 'Inactive',
+          imageUrl: emp.ImageUrl || '/src/assets/profile.png'
         }));
         setAccounts(accountData);
         setError(null);
@@ -42,14 +47,20 @@ const Account = () => {
   }, []);
 
   const handleEdit = async (id) => {
-    // Will be implemented later
-    console.log('Edit account:', id);
+    navigate(`/edit-account/${id}`);
   };
 
   const handleDelete = async (id) => {
+    setAccountToDelete(accounts.find(account => account.id === id));
+    setShowDeletePopup(true);
+  };
+
+  const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3001/api/employees/${id}`);
-      setAccounts(accounts.filter(account => account.id !== id));
+      await axios.delete(`http://localhost:3001/api/employees/${accountToDelete.id}`);
+      setAccounts(accounts.filter(account => account.id !== accountToDelete.id));
+      setShowDeletePopup(false);
+      setAccountToDelete(null);
     } catch (err) {
       console.error('Error deleting account:', err);
       alert('Failed to delete account');
@@ -102,10 +113,10 @@ const Account = () => {
               <table className="account-table">
                 <thead>
                   <tr>
-                    <th>Full Name</th>
+                    <th>User</th>
+                    <th>Employee ID</th>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>Phone</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -113,13 +124,23 @@ const Account = () => {
                 <tbody>
                   {filteredAccounts.map((account) => (
                     <tr key={account.id}>
-                      <td>
-                        {account.fullName}
-                        {account.nickname !== '-' && ` (${account.nickname})`}
+                      <td className="account-user-cell">
+                        <img 
+                          src={account.imageUrl}
+                          alt={account.fullName}
+                          onError={(e) => {e.target.src = '/src/assets/profile.png'}}
+                          className="account-user-image"
+                        />
+                        <div className="account-user-info">
+                          <span className="account-user-name">{account.fullName}</span>
+                          {account.nickname !== '-' && 
+                            <span className="account-user-nickname">({account.nickname})</span>
+                          }
+                        </div>
                       </td>
+                      <td>{account.employeeId}</td>
                       <td>{account.username}</td>
                       <td>{account.email}</td>
-                      <td>{account.phone}</td>
                       <td>
                         <span className={`account-status-badge ${account.status.toLowerCase()}`}>
                           {account.status}
@@ -149,6 +170,35 @@ const Account = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      {showDeletePopup && (
+        <div className="delete-popup-overlay">
+          <div className="delete-popup">
+            <div className="delete-popup-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this leave type? This action cannot be undone.</p>
+            <div className="delete-popup-buttons">
+              <button 
+                className="cancel-btn"
+                onClick={() => setShowDeletePopup(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="delete-btn"
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

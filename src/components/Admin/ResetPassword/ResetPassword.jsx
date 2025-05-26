@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { IoArrowBack } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import Popup from '../PopupUpdatePass/Popup'
-import bgDashboard from '../../assets/bgdashboard.png'
+import bgDashboard from '../../../assets/bgdashboard.png'
 import '../AnimationCircles/AnimationCircles.css'
 import './ResetPassword.css'
 

@@ -14,7 +14,7 @@ import {
 import { BsGrid } from 'react-icons/bs'
 import { BiSun, BiMoon } from 'react-icons/bi'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
-import { useTheme } from '../../context/ThemeContext'
+import { useTheme } from '../../../context/ThemeContext'
 import './Side_menu.css'
 
 const SideMenu = ({ isMinimized, onToggleMinimize, hasPopup }) => {
@@ -87,8 +87,9 @@ const SideMenu = ({ isMinimized, onToggleMinimize, hasPopup }) => {
     }    if ((location.pathname === '/newholiday' || location.pathname.startsWith('/holidays')) && path === '/holidays') {
       return true;
     }
-    if (location.pathname.startsWith('/account') && path === '/account') {
-      return true;
+    if (location.pathname.startsWith('/account') || 
+        location.pathname.startsWith('/edit-account')) {
+      return path === '/account';
     }
     return location.pathname === path;
   }

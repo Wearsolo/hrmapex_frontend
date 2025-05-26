@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FiSearch, FiBell, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi'
 import './Topbar.css'
-import userImage from '../../assets/profile.png'
+import userImage from '../../../assets/profile.png'
 
 function Topbar({ pageTitle = "Dashboard", pageSubtitle = "" }) {
   const navigate = useNavigate()

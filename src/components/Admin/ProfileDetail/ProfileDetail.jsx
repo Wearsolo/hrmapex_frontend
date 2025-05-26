@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import SideMenu from '../SideMenu/Side_menu';
 import Topbar from '../Topbar/Topbar';
 import { FiEdit2, FiUser, FiBriefcase, FiFileText, FiLock, FiUserCheck, FiCalendar, FiFolder, FiFile, FiCreditCard, FiEye, FiDownload, FiSave, FiMoreHorizontal, FiUpload, FiX } from 'react-icons/fi';
-import { getEmployees } from '../../database/employeeData';
+import { getEmployees } from '../../../database/employeeData';
 import axios from 'axios';
 import './ProfileDetail.css';
 import '../AnimationCircles/AnimationCircles.css';
