@@ -1,9 +1,8 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login/Login'
 import ForgotPassword from './components/ForgotPassword/ForgotPassword'
-import OTP from './components/OTP/OTP'
+import Account from './components/Account/Account'
 import ResetPassword from './components/ResetPassword/ResetPassword'
-import Dashboard from './components/DashBoard/Dashboard'
 import AllEmployees from './components/AllEmployees/AllEmployees'
 import NewEmployees from './components/NewEmployees/NewEmployees'
 import ProfileDetail from './components/ProfileDetail/ProfileDetail'
@@ -29,10 +28,9 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/otp" element={<OTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/employees" element={<AllEmployees />} />
+          <Route path="/all-employees" element={<AllEmployees />} />
+          <Route path="/employees" element={<Navigate to="/all-employees" />} />
           <Route path="/new-employee" element={<NewEmployees />} />
           <Route path="/employee/:id" element={<ProfileDetail />} />
           <Route path="/news" element={<New />} />
@@ -42,10 +40,10 @@ function App() {
           <Route path="/payroll" element={<Payroll />} />
           <Route path="/payroll-detail/:id" element={<PayrollDetail />} />
           <Route path="/disbursement" element={<Disbursement />} />
-          <Route path="/adddisburse" element={<Adddisburse />} />
-          <Route path="/settings" element={<Setting />} />
+          <Route path="/adddisburse" element={<Adddisburse />} />          <Route path="/settings" element={<Setting />} />
           <Route path="/holidays" element={<Holidays />} />
           <Route path="/newholiday/:monthIndex" element={<NewHoliday />} />
+          <Route path="/account" element={<Account />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

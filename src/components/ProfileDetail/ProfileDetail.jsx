@@ -27,6 +27,7 @@ const ProfileDetail = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -86,11 +87,16 @@ const ProfileDetail = () => {
   };
 
   const handleSave = async () => {
+    setShowSaveConfirm(true);
+  };
+
+  const handleConfirmSave = async () => {
     try {
       const response = await axios.put(`http://localhost:3001/api/employees/${id}`, editData);
       if (response.data) {
         setEmployeeData(editData);
         setIsEditing(false);
+        setShowSaveConfirm(false);
       }
     } catch (error) {
       console.error('Error updating employee:', error);
@@ -1999,7 +2005,7 @@ const ProfileDetail = () => {
 
             <div className="info-section">
               <div className="section-title">Bank Information</div>
-              <div className="info-container">
+                           <div className="info-container">
                 <div className="info-row">
                   <div className="info-item">
                     <label>Bank Name</label>
@@ -2177,6 +2183,29 @@ const ProfileDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal for Save */}
+      {showSaveConfirm && (
+        <div className="save-confirm-overlay">
+          <div className="save-confirm-modal">
+            <div className="save-confirm-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" strokeWidth="2">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+            </div>
+            <h3>Save Changes?</h3>
+            <p>Are you sure you want to save these changes?</p>
+            <div className="save-confirm-buttons">
+              <button className="btn-cancel" onClick={() => setShowSaveConfirm(false)}>
+                Cancel
+              </button>
+              <button className="btn-save" onClick={handleConfirmSave}>
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

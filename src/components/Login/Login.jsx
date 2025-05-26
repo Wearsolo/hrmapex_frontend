@@ -3,7 +3,24 @@ import { FaEye, FaEyeSlash, FaRegUser } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import bgDashboard from "/src/assets/bgdashboard.png"
+import '../AnimationCircles/AnimationCircles.css'
 import './Login.css'
+
+// Animation circles component
+const AnimationCircles = () => (
+  <>
+    <ul className="circles">
+      {[...Array(25)].map((_, i) => (
+        <li key={`top-${i}`}></li>
+      ))}
+    </ul>
+    <ul className="circles-bottom">
+      {[...Array(25)].map((_, i) => (
+        <li key={`bottom-${i}`}></li>
+      ))}
+    </ul>
+  </>
+)
 
 function Login() {
   const navigate = useNavigate()
@@ -27,6 +44,19 @@ function Login() {
       setPassword(rememberedPassword)
       setRememberMe(true)
     }
+  }, [])
+
+  // เพิ่ม state สำหรับเช็คขนาดหน้าจอ
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(window.innerWidth <= 1024)
+
+  // เพิ่ม effect เพื่อติดตามการเปลี่ยนแปลงขนาดหน้าจอ
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileOrTablet(window.innerWidth <= 1024)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const validateForm = () => {
@@ -84,10 +114,11 @@ function Login() {
           localStorage.removeItem('rememberedPassword')
         }
 
-        // Store login status and user info
+        // Store login status and auth info
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userRole', data.user.role)
-        navigate('/dashboard')
+        localStorage.setItem('token', data.token) // เพิ่มการเก็บ token
+        navigate('/all-employees')
       } else {
         setError(data.message || 'Invalid email or password')
       }
@@ -114,14 +145,20 @@ function Login() {
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.5 }}
-    >      <motion.div 
-        className="login-left"
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <img src={bgDashboard} alt="Dashboard Preview" className="dashboard-preview" />
-      </motion.div>
+    >
+      {isMobileOrTablet && <AnimationCircles />}
+      
+      {/* แสดง dashboard preview เฉพาะบน desktop */}
+      {!isMobileOrTablet && (
+        <motion.div 
+          className="login-left"
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <img src={bgDashboard} alt="Dashboard Preview" className="dashboard-preview" />
+        </motion.div>
+      )}
       
       <motion.div 
         className="login-right"

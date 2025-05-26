@@ -128,15 +128,18 @@ app.get('/api/employees', async (req, res, next) => {
         const [rows] = await pool.query(`
             SELECT 
                 EmployeeId, FName, LName, Nickname, Email,
-                Department, Position, StartDate, Type, Status,
-                ImageUrl, MobileNumber, Age,
-                BankName, AccountNumber, AccountType, AccountHolderName
+                Department, Position, Type, Status, username,
+                ImageUrl, MobileNumber
             FROM employees 
-            ORDER BY StartDate DESC
+            ORDER BY EmployeeId DESC
         `);
         res.json(rows);
     } catch (error) {
-        next(error);
+        console.error('Error fetching employees:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch employees',
+            details: error.message 
+        });
     }
 });
 

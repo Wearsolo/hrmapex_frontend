@@ -36,8 +36,11 @@ const AllEmployees = () => {
   }
 
   useEffect(() => {
+    // ตรวจสอบ authentication
+    const token = localStorage.getItem('token')
     const isLoggedIn = localStorage.getItem('isLoggedIn')
-    if (!isLoggedIn) {
+    
+    if (!isLoggedIn || !token) {
       navigate('/login')
       return
     }
@@ -46,11 +49,20 @@ const AllEmployees = () => {
       try {
         setIsLoading(true)
         setError(null)
-        const response = await axios.get('http://localhost:3001/api/employees')
+        const response = await axios.get('http://localhost:3001/api/employees', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         setEmployees(response.data)
         setFilteredEmployees(response.data)
       } catch (error) {
         console.error('Error fetching employees:', error)
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('isLoggedIn')
+          navigate('/login')
+        }
         setError('Failed to fetch employees. Please try again later.')
       } finally {
         setIsLoading(false)

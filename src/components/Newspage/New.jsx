@@ -309,16 +309,22 @@ function New() {
                         >
                           <FiStar />
                         </button>
-                        <button className="icon-btn action-view" title="View" onClick={() => handleView(item)}><FiEye /></button>
-                        <button className="icon-btn action-edit" title="Edit" onClick={() => handleOpenModal(item)}><FiEdit /></button>
+                        <button className="icon-btn action-view" title="View" onClick={() => handleView(item)}>
+                          <FiEye />
+                        </button>
+                        <button className="icon-btn action-edit" title="Edit" onClick={() => handleOpenModal(item)}>
+                          <FiEdit />
+                        </button>
                         <button 
-                          className={`icon-btn action-hide ${hiddenNews.has(item.NewsId) ? 'hidden' : ''}`} 
+                          className={`icon-btn action-hide`} 
                           title={hiddenNews.has(item.NewsId) ? "Show" : "Hide"}
                           onClick={() => handleToggleVisibility(item.NewsId)}
                         >
                           {hiddenNews.has(item.NewsId) ? <FiUnlock /> : <FiLock />}
                         </button>
-                        <button className="icon-btn action-delete" title="Delete" onClick={() => handleDelete(item.NewsId)}><FiTrash2 /></button>
+                        <button className="icon-btn action-delete" title="Delete" onClick={() => handleDelete(item.NewsId)}>
+                          <FiTrash2 />
+                        </button>
                       </td>
                     </tr>
                   ))}
