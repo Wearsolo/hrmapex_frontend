@@ -94,28 +94,24 @@ function AddNew() {
       formDataToSend.append('title', formData.title);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('content', formData.content);
-      formDataToSend.append('createdDate', formData.createdDate);
-      
-      // Handle multiple document uploads
+      // createdDate is not used in backend, so skip it
+      // Only send the first file as 'attachment' (backend supports one file)
       if (formData.documents && formData.documents.length > 0) {
-        formData.documents.forEach((file, index) => {
-          formDataToSend.append('documents', file)
-        })
+        formDataToSend.append('attachment', formData.documents[0]);
       }
-
       // Send the data to the server
       const response = await axios.post(API_URL, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
+      });
 
       if (response.data) {
-        navigate('/news')
+        navigate('/news');
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
-      alert(error.response?.data?.message || 'Failed to add news. Please try again.')
+      console.error('Error submitting form:', error);
+      alert(error.response?.data?.message || 'Failed to add news. Please try again.');
     }
   }
 

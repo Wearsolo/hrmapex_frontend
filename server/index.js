@@ -389,16 +389,16 @@ app.get('/api/news', async (req, res, next) => {
     try {
         const result = await pool.query(`
             SELECT 
-                "newsId",
-                "title",
-                "content",
-                "category",
-                "attachment",
-                "created_at",
-                "isPinned",
-                "isVisible"
+                newsid AS "newsId",
+                title,
+                content,
+                category,
+                attachment,
+                createdat AS "created_at",
+                ispinned AS "isPinned",
+                hidenews AS "Hidenews"
             FROM news 
-            ORDER BY "isPinned" DESC, "created_at" DESC
+            ORDER BY ispinned DESC, createdat DESC
         `);
         
         // Map the results and format the dates
@@ -431,10 +431,10 @@ app.post('/api/news', async (req, res, next) => {
             attachment = fileName;
         }
 
-        // Insert into database
+        // Insert into database (use correct column names and types)
         const result = await pool.query(`
-            INSERT INTO news ("title", "content", "category", "attachment", "created_at", "isPinned", "isVisible")
-            VALUES ($1, $2, $3, $4, NOW(), false, true)
+            INSERT INTO news (title, content, category, attachment, createdat, ispinned, hidenews)
+            VALUES ($1, $2, $3, $4, NOW(), false, 0)
             RETURNING *
         `, [title, content, category, attachment]);
 
@@ -523,24 +523,23 @@ app.put('/api/news/:id/toggle-pin', async (req, res) => {
   try {
     const { id } = req.params;
     const { isPinned } = req.body;
-    
     // Validate input
-    if (typeof isPinned !== 'number' || ![0, 1].includes(isPinned)) {
-      return res.status(400).json({ error: 'isPinned must be 0 or 1' });
-    }    const result = await pool.query(
-      'UPDATE news SET "isPinned" = $1 WHERE "NewsId" = $2',
-      [isPinned, id]
+    if (typeof isPinned !== 'number' && typeof isPinned !== 'boolean') {
+      return res.status(400).json({ error: 'isPinned must be 0/1 or boolean' });
+    }
+    // Convert boolean to int if needed
+    const pinValue = isPinned === true ? 1 : isPinned === false ? 0 : isPinned;
+    const result = await pool.query(
+      'UPDATE news SET ispinned = $1 WHERE newsid = $2',
+      [pinValue, id]
     );
-
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'News not found' });
     }
-
-    // Return the new state in the response
     res.json({ 
       success: true,
       message: 'Pin status updated successfully',
-      isPinned: isPinned
+      isPinned: pinValue
     });
   } catch (error) {
     console.error('Error updating pin status:', error);
@@ -553,24 +552,28 @@ app.put('/api/news/:id/toggle-pin', async (req, res) => {
 
 // Toggle visibility status for a news item
 app.put('/api/news/:id/toggle-visibility', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { Hidenews } = req.body;
-        const result = await pool.query(
-        'UPDATE news SET "Hidenews" = $1 WHERE "NewsId" = $2',
-        [Hidenews, id]
-      );
-  
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'News not found' });
-      }
-  
-      res.json({ message: 'Visibility status updated successfully' });
-    } catch (error) {
-      console.error('Error updating visibility status:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  try {
+    const { id } = req.params;
+    const { Hidenews } = req.body;
+    // Validate input
+    if (typeof Hidenews !== 'number' && typeof Hidenews !== 'boolean') {
+      return res.status(400).json({ error: 'Hidenews must be 0/1 or boolean' });
     }
-  });
+    // Convert boolean to int if needed
+    const hideValue = Hidenews === true ? 1 : Hidenews === false ? 0 : Hidenews;
+    const result = await pool.query(
+      'UPDATE news SET hidenews = $1 WHERE newsid = $2',
+      [hideValue, id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'News not found' });
+    }
+    res.json({ message: 'Visibility status updated successfully', Hidenews: hideValue });
+  } catch (error) {
+    console.error('Error updating visibility status:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Send reject notification email
 app.post('/api/disbursement/reject-notification', async (req, res) => {
@@ -641,6 +644,16 @@ app.post('/api/disbursement/new-notification', async (req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+
+// Start server only if database connection is successful
+pool.connect()
+  .then(() => {
+    console.log('Connected to PostgreSQL database');
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to PostgreSQL:', err);
+    process.exit(1);
+  });
