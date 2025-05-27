@@ -9,6 +9,59 @@ import Topbar from "../Topbar/Topbar";
 
 const API_URL = 'http://localhost:3001/api/news';
 
+const MOCK_NEWS_DATA = [
+  {
+    NewsId: 1,
+    Title: "Company Annual Party 2024",
+    Category: "Announcement",
+    Content: "Join us for our annual company celebration! This year's theme is 'Future Forward'. The event will be held at The Grand Hotel on March 15, 2024. Dinner, entertainment, and awards ceremony included. Dress code: Smart Casual. Please RSVP by March 1st.",
+    CreatedAt: "2024-02-15T08:00:00.000Z",
+    Attachment: "annual_party_2024.jpg",
+    isPinned: 1,
+    Hidenews: 0
+  },
+  {
+    NewsId: 2,
+    Title: "New IT System Implementation",
+    Category: "IT",
+    Content: "We're upgrading our internal systems next week. The maintenance window will be from 10 PM to 4 AM on Tuesday. Please save all work and log out before leaving on Monday. Training sessions for the new system will be conducted next month.",
+    CreatedAt: "2024-02-14T15:30:00.000Z",
+    Attachment: "system_upgrade_schedule.pdf",
+    isPinned: 0,
+    Hidenews: 0
+  },
+  {
+    NewsId: 3,
+    Title: "CSR Activity: Tree Planting Day",
+    Category: "Activity",
+    Content: "As part of our environmental initiative, we're organizing a tree planting activity at Lumphini Park. Join us on February 25th from 9 AM to 12 PM. Equipment and refreshments will be provided. Sign up at the HR office by February 20th.",
+    CreatedAt: "2024-02-13T10:15:00.000Z",
+    Attachment: "tree_planting_details.pdf",
+    isPinned: 0,
+    Hidenews: 0
+  },
+  {
+    NewsId: 4,
+    Title: "Office Renovation Notice",
+    Category: "Announcement",
+    Content: "The 3rd floor will undergo renovation from March 1-15. Affected departments will temporarily relocate to the 5th floor. Please pack your belongings by February 28th. Contact Facilities Management for any questions.",
+    CreatedAt: "2024-02-12T09:00:00.000Z",
+    Attachment: "renovation_plan.jpg",
+    isPinned: 0,
+    Hidenews: 0
+  },
+  {
+    NewsId: 5,
+    Title: "New Employee Portal Launch",
+    Category: "IT",
+    Content: "We're excited to announce the launch of our new employee portal! The new system features improved leave management, document requests, and payroll access. Login credentials will be sent to your email by end of this week.",
+    CreatedAt: "2024-02-11T11:45:00.000Z",
+    Attachment: "portal_guide.pdf",
+    isPinned: 0,
+    Hidenews: 0
+  }
+];
+
 const isImageFile = (filename) => {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
   const extension = filename?.split('.').pop()?.toLowerCase();
@@ -46,26 +99,28 @@ function New() {
   }, []);
 
   const fetchNews = async () => {
-    const res = await axios.get(API_URL);
-    // Sort news with pinned items first, then by date
-    const sortedNews = res.data.sort((a, b) => {
-      if (a.isPinned !== b.isPinned) {
-        return b.isPinned - a.isPinned; // Pinned items first
-      }
-      // If both items have same pin status, sort by date
-      return new Date(b.CreatedAt) - new Date(a.CreatedAt);
-    });
-    setNews(sortedNews);
+    try {
+      // Using mock data instead of API call
+      const sortedNews = MOCK_NEWS_DATA.sort((a, b) => {
+        if (a.isPinned !== b.isPinned) {
+          return b.isPinned - a.isPinned;
+        }
+        return new Date(b.CreatedAt) - new Date(a.CreatedAt);
+      });
+      setNews(sortedNews);
 
-    // Initialize both pinned and hidden states from database
-    const hiddenSet = new Set(
-      sortedNews.filter(item => item.Hidenews === 1).map(item => item.NewsId)
-    );
-    const pinnedSet = new Set(
-      sortedNews.filter(item => item.isPinned === 1).map(item => item.NewsId)
-    );
-    setHiddenNews(hiddenSet);
-    setPinnedNews(pinnedSet);
+      // Initialize pinned and hidden states
+      const hiddenSet = new Set(
+        sortedNews.filter(item => item.Hidenews === 1).map(item => item.NewsId)
+      );
+      const pinnedSet = new Set(
+        sortedNews.filter(item => item.isPinned === 1).map(item => item.NewsId)
+      );
+      setHiddenNews(hiddenSet);
+      setPinnedNews(pinnedSet);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+    }
   };
 
   const handleTogglePin = async (newsId) => {

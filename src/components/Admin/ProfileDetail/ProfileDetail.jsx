@@ -16,6 +16,167 @@ const mainTabs = [
   { key: 'other', label: 'Other', icon: <FiMoreHorizontal /> }
 ];
 
+const MOCK_EMPLOYEE_DATA = {
+  "EMP001": {
+    EmployeeId: "EMP001",
+    FName: "Sarah",
+    LName: "Johnson",
+    Nickname: "Sara",
+    Email: "sarah.j@company.com",
+    MobileNumber: "081-234-5678",
+    Position: "Senior Developer",
+    Department: "IT",
+    Type: "Full-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/women/32.jpg",
+    DateOfBirth: "1990-05-15",
+    Age: 33,
+    Gender: "Female",
+    Nationality: "Thai",
+    MaritalStatus: "Single",
+    Religion: "พุทธศาสนา",
+    Address: "123/45 Sukhumvit Road",
+    City: "Bangkok",
+    State: "Bangkok",
+    ZIPCode: "10110",
+    BankName: "Kasikorn Bank",
+    AccountNumber: "123-4-56789-0",
+    AccountHolderName: "Sarah Johnson",
+    Salary: 85000,
+    StartDate: "2020-06-01",
+    experience: [
+      {
+        company: "Tech Corp",
+        position: "Developer",
+        fromDate: "2018-01",
+        toDate: "2020-05",
+        salary: "65000",
+        jobDescription: "• Led development of e-commerce platform using React.js\n• Mentored 3 junior developers\n• Improved site performance by 40%"
+      }
+    ],
+    education: [
+      {
+        level: "ปริญญาตรี",
+        institution: "Chulalongkorn University",
+        major: "Computer Science",
+        graduationYear: "2018"
+      }
+    ]
+  },
+  "EMP002": {
+    EmployeeId: "EMP002",
+    FName: "Michael",
+    LName: "Chen",
+    Nickname: "Mike",
+    Email: "michael.c@company.com",
+    MobileNumber: "089-876-5432",
+    Position: "Marketing Manager",
+    Department: "Marketing",
+    Type: "Full-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
+    DateOfBirth: "1988-08-20",
+    Age: 35,
+    Gender: "Male",
+    Nationality: "Thai",
+    MaritalStatus: "Married",
+    Religion: "คริสต์ศาสนา",
+    Address: "456 Silom Road",
+    City: "Bangkok",
+    State: "Bangkok",
+    ZIPCode: "10500",
+    BankName: "Bangkok Bank",
+    AccountNumber: "987-6-54321-0",
+    AccountHolderName: "Michael Chen",
+    Salary: 95000,
+    StartDate: "2019-03-15"
+  },
+  "EMP003": {
+    EmployeeId: "EMP003",
+    FName: "Emma",
+    LName: "Wilson",
+    Nickname: "Em",
+    Email: "emma.w@company.com",
+    MobileNumber: "086-345-6789",
+    Position: "HR Specialist",
+    Department: "Human Resources",
+    Type: "Part-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/women/68.jpg",
+    DateOfBirth: "1992-12-10",
+    Age: 31,
+    Gender: "Female",
+    Nationality: "Thai",
+    MaritalStatus: "Single",
+    Religion: "พุทธศาสนา",
+    Address: "789 Ratchada Road",
+    City: "Bangkok",
+    State: "Bangkok",
+    ZIPCode: "10400",
+    BankName: "SCB",
+    AccountNumber: "456-7-89012-3",
+    AccountHolderName: "Emma Wilson",
+    Salary: 45000,
+    StartDate: "2021-01-10"
+  },
+  "EMP004": {
+    EmployeeId: "EMP004",
+    FName: "David",
+    LName: "Thompson",
+    Nickname: "Dave",
+    Email: "david.t@company.com",
+    MobileNumber: "083-567-8901",
+    Position: "Financial Analyst",
+    Department: "Finance",
+    Type: "Contract",
+    Status: "On Leave",
+    ImageUrl: "https://randomuser.me/api/portraits/men/22.jpg",
+    DateOfBirth: "1991-03-25",
+    Age: 32,
+    Gender: "Male",
+    Nationality: "Thai",
+    MaritalStatus: "Married",
+    Religion: "พุทธศาสนา",
+    Address: "321 Petchburi Road",
+    City: "Bangkok",
+    State: "Bangkok",
+    ZIPCode: "10400",
+    BankName: "Krungthai Bank",
+    AccountNumber: "789-0-12345-6",
+    AccountHolderName: "David Thompson",
+    Salary: 65000,
+    StartDate: "2022-05-20"
+  },
+  "EMP005": {
+    EmployeeId: "EMP005",
+    FName: "Lisa",
+    LName: "Garcia",
+    Nickname: "Lis",
+    Email: "lisa.g@company.com",
+    MobileNumber: "087-890-1234",
+    Position: "Sales Representative",
+    Department: "Sales",
+    Type: "Full-time",
+    Status: "Inactive",
+    ImageUrl: "https://randomuser.me/api/portraits/women/89.jpg",
+    DateOfBirth: "1993-07-30",
+    Age: 30,
+    Gender: "Female",
+    Nationality: "Thai",
+    MaritalStatus: "Single",
+    Religion: "คริสต์ศาสนา",
+    Address: "654 Asok Road",
+    City: "Bangkok",
+    State: "Bangkok",
+    ZIPCode: "10110",
+    BankName: "TMB Bank",
+    AccountNumber: "234-5-67890-1",
+    AccountHolderName: "Lisa Garcia",
+    Salary: 55000,
+    StartDate: "2021-08-15"
+  }
+};
+
 const ProfileDetail = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -32,9 +193,11 @@ const ProfileDetail = () => {
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/employees/${id}`);
-        if (response.data) {
-          setEmployeeData(response.data);
+        // Replace API call with mock data
+        const mockEmployee = MOCK_EMPLOYEE_DATA[id];
+        if (mockEmployee) {
+          setEmployeeData(mockEmployee);
+          setEditData(mockEmployee);
         } else {
           console.error('Employee not found with ID:', id);
         }
@@ -1299,40 +1462,64 @@ const ProfileDetail = () => {
               </thead>
               <tbody>
                 {experienceList.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>
-                      {isEditing ? (
+                  <React.Fragment key={idx}>
+                    <tr>
+                      <td>{isEditing ? (
                         <input type="text" name={`experience.${idx}.company`} value={row.company || ''} onChange={handleInputChange} />
-                      ) : row.company || '-'}
-                    </td>
-                    <td>
-                      {isEditing ? (
+                      ) : row.company || '-'}</td>
+                      <td>{isEditing ? (
                         <input type="text" name={`experience.${idx}.position`} value={row.position || ''} onChange={handleInputChange} />
-                      ) : row.position || '-'}
-                    </td>
-                    <td>
-                      {isEditing ? (
+                      ) : row.position || '-'}</td>
+                      <td>{isEditing ? (
                         <input type="month" name={`experience.${idx}.fromDate`} value={row.fromDate || ''} onChange={handleInputChange} />
-                      ) : row.fromDate || '-'}
-                    </td>
-                    <td>
-                      {isEditing ? (
+                      ) : row.fromDate || '-'}</td>
+                      <td>{isEditing ? (
                         <input type="month" name={`experience.${idx}.toDate`} value={row.toDate || ''} onChange={handleInputChange} />
-                      ) : row.toDate || '-'}
-                    </td> 
-                    <td>
-                      {isEditing ? (
+                      ) : row.toDate || '-'}</td>
+                      <td>{isEditing ? (
                         <input type="number" name={`experience.${idx}.salary`} value={row.salary || ''} onChange={handleInputChange} min="0" />
-                      ) : (row.salary ? `฿${row.salary}` : '-')}
-                    </td>
-                    {isEditing && (
-                      <td>
-                        {editData.experience.length > 1 && (
-                          <button type="button" className="btn-remove-row" onClick={() => handleRemoveExperience(idx)} title="Remove">&times;</button>
+                      ) : (row.salary ? `฿${row.salary}` : '-')}</td>
+                      {isEditing && (
+                        <td>
+                          {editData.experience.length > 1 && (
+                            <button type="button" className="btn-remove-row" onClick={() => handleRemoveExperience(idx)} title="Remove">&times;</button>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                    <tr>
+                      <td colSpan={isEditing ? "6" : "5"} style={{ padding: "8px 16px", background: "#f8fafc" }}>
+                        {isEditing ? (
+                          <textarea
+                            name={`experience.${idx}.jobDescription`}
+                            value={row.jobDescription || ''}
+                            onChange={handleInputChange}
+                            rows="3"
+                            placeholder="Enter job responsibilities and achievements..."
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              borderRadius: '4px',
+                              border: '1px solid #e2e8f0',
+                              resize: 'vertical',
+                              minHeight: '80px',
+                              background: '#fff'
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            whiteSpace: 'pre-wrap',
+                            padding: '8px',
+                            fontSize: '0.9em',
+                            lineHeight: '1.4',
+                            color: '#4a5568'
+                          }}>
+                            {row.jobDescription || '-'}
+                          </div>
                         )}
                       </td>
-                    )}
-                  </tr>
+                    </tr>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

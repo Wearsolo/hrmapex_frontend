@@ -91,7 +91,26 @@ function Login() {
     
     if (!validateForm()) {
       return
-    }    try {
+    }
+
+    try {
+      // Check admin credentials
+      if (email === 'admin@gmail.com' && password === '123456') {
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email)
+          localStorage.setItem('rememberedPassword', password)
+        } else {
+          localStorage.removeItem('rememberedEmail')
+          localStorage.removeItem('rememberedPassword')
+        }
+        
+        localStorage.setItem('isLoggedIn', 'true')
+        localStorage.setItem('userRole', 'admin')
+        localStorage.setItem('token', 'admin-token')
+        navigate('/all-employees')
+        return
+      }
+
       // Check for user credentials
       if (email === 'user@gmail.com' && password === '111111') {
         // Handle Remember Me

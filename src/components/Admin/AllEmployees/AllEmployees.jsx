@@ -19,7 +19,7 @@ const MOCK_EMPLOYEES = [
     MobileNumber: "081-234-5678",
     Position: "Senior Developer",
     Department: "IT",
-    Type: "Full-time",
+    Type: "Permanent",
     Status: "Active",
     ImageUrl: "https://randomuser.me/api/portraits/women/32.jpg"
   },
@@ -32,7 +32,7 @@ const MOCK_EMPLOYEES = [
     MobileNumber: "089-876-5432",
     Position: "Marketing Manager",
     Department: "Marketing",
-    Type: "Full-time",
+    Type: "Intern",
     Status: "Active",
     ImageUrl: "https://randomuser.me/api/portraits/men/45.jpg"
   },
@@ -45,7 +45,7 @@ const MOCK_EMPLOYEES = [
     MobileNumber: "086-345-6789",
     Position: "HR Specialist",
     Department: "Human Resources",
-    Type: "Part-time",
+    Type: "Freelance",
     Status: "Active",
     ImageUrl: "https://randomuser.me/api/portraits/women/68.jpg"
   },
@@ -59,7 +59,7 @@ const MOCK_EMPLOYEES = [
     Position: "Financial Analyst",
     Department: "Finance",
     Type: "Contract",
-    Status: "On Leave",
+    Status: "Inactive",
     ImageUrl: "https://randomuser.me/api/portraits/men/22.jpg"
   },
   {
@@ -71,7 +71,7 @@ const MOCK_EMPLOYEES = [
     MobileNumber: "087-890-1234",
     Position: "Sales Representative",
     Department: "Sales",
-    Type: "Full-time",
+    Type: "Permanent",
     Status: "Inactive",
     ImageUrl: "https://randomuser.me/api/portraits/women/89.jpg"
   }

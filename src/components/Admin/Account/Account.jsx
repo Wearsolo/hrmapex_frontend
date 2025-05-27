@@ -7,6 +7,59 @@ import './Account.css';
 import '../AnimationCircles/AnimationCircles.css';
 import { useNavigate } from 'react-router-dom';
 
+const MOCK_ACCOUNTS = [
+  {
+    id: "ACC001",
+    employeeId: "EMP001",
+    fullName: "Sarah Johnson",
+    nickname: "Sara",
+    username: "sarah.j",
+    email: "sarah.j@company.com",
+    status: "Active",
+    imageUrl: "https://randomuser.me/api/portraits/women/32.jpg"
+  },
+  {
+    id: "ACC002",
+    employeeId: "EMP002",
+    fullName: "Michael Chen",
+    nickname: "Mike",
+    username: "michael.c",
+    email: "michael.c@company.com",
+    status: "Active",
+    imageUrl: "https://randomuser.me/api/portraits/men/45.jpg"
+  },
+  {
+    id: "ACC003",
+    employeeId: "EMP003",
+    fullName: "Emma Wilson",
+    nickname: "Em",
+    username: "emma.w",
+    email: "emma.w@company.com",
+    status: "Active",
+    imageUrl: "https://randomuser.me/api/portraits/women/68.jpg"
+  },
+  {
+    id: "ACC004",
+    employeeId: "EMP004",
+    fullName: "David Thompson",
+    nickname: "Dave",
+    username: "david.t",
+    email: "david.t@company.com",
+    status: "Inactive",
+    imageUrl: "https://randomuser.me/api/portraits/men/22.jpg"
+  },
+  {
+    id: "ACC005",
+    employeeId: "EMP005",
+    fullName: "Lisa Garcia",
+    nickname: "Lis",
+    username: "lisa.g",
+    email: "lisa.g@company.com",
+    status: "Active",
+    imageUrl: "https://randomuser.me/api/portraits/women/89.jpg"
+  }
+];
+
 const Account = () => {
   const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,19 +74,8 @@ const Account = () => {
     const fetchAccounts = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:3001/api/employees');
-        // Transform employee data to account format using username from database
-        const accountData = response.data.map(emp => ({
-          id: emp.EmployeeId,
-          employeeId: emp.EmployeeId, // Add this line
-          fullName: `${emp.FName} ${emp.LName}`,
-          nickname: emp.Nickname || '-',
-          username: emp.username || '-',
-          email: emp.Email || '-',
-          status: emp.Status || 'Inactive',
-          imageUrl: emp.ImageUrl || '/src/assets/profile.png'
-        }));
-        setAccounts(accountData);
+        // Replace API call with mock data
+        setAccounts(MOCK_ACCOUNTS);
         setError(null);
       } catch (err) {
         console.error('Error fetching accounts:', err);
@@ -57,7 +99,7 @@ const Account = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3001/api/employees/${accountToDelete.id}`);
+      // Remove API call and just update state
       setAccounts(accounts.filter(account => account.id !== accountToDelete.id));
       setShowDeletePopup(false);
       setAccountToDelete(null);
