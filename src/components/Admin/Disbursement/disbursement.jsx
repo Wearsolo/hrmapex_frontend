@@ -5,6 +5,9 @@ import SideMenu from '../SideMenu/Side_menu';
 import Topbar from '../Topbar/Topbar';
 import './disbursement.css';
 import '../AnimationCircles/AnimationCircles.css';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3001/api/disbursements';
 
 const Disbursement = () => {
   const navigate = useNavigate();
@@ -90,8 +93,21 @@ const Disbursement = () => {
   ];
 
   useEffect(() => {
-    // In real application, fetch data from API
-    setDisbursements(mockDisbursements);
+    // Fetch data from API instead of using mock data
+    const fetchDisbursements = async () => {
+      try {
+        const response = await axios.get(API_URL);
+        // Map employeename to employeeName for frontend consistency
+        const mapped = response.data.map(item => ({
+          ...item,
+          employeeName: item.employeename || item.employeeName // fallback for mock data
+        }));
+        setDisbursements(mapped);
+      } catch (error) {
+        console.error('Error fetching disbursements:', error);
+      }
+    };
+    fetchDisbursements();
   }, []);
 
   const handleApprove = (id) => {

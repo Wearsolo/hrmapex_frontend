@@ -640,6 +640,21 @@ app.post('/api/disbursement/new-notification', async (req, res) => {
   }
 });
 
+// Route to get all disbursements
+app.get('/api/disbursements', async (req, res, next) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, employeename, category, amount, status, date, details
+      FROM disbursements
+      ORDER BY id DESC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching disbursements:', error);
+    next(error);
+  }
+});
+
 // Apply error handler
 app.use(errorHandler);
 
