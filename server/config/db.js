@@ -1,21 +1,21 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
+require('dotenv').config({ path: '../.env' });
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',  // Default XAMPP MySQL password is empty
-    database: 'hrmanagement',
-    port: 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+const pool = new Pool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // Test the connection
-pool.getConnection()
-    .then(connection => {
+pool.connect()
+    .then(() => {
         console.log('Successfully connected to the database');
-        connection.release();
     })
     .catch(err => {
         console.error('Error connecting to the database:', err);

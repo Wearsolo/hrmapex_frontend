@@ -124,16 +124,15 @@ app.post('/api/auth/login', async (req, res, next) => {
 
 // Route to get all employees
 app.get('/api/employees', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query(`
+    try {        const result = await pool.query(`
             SELECT 
-                EmployeeId, FName, LName, Nickname, Email,
-                Department, Position, Type, Status, username,
-                ImageUrl, MobileNumber
+                "EmployeeId", "FName", "LName", "Nickname", "Email",
+                "Department", "Position", "Type", "Status", "username",
+                "ImageUrl", "MobileNumber"
             FROM employees 
-            ORDER BY EmployeeId DESC
+            ORDER BY "EmployeeId" DESC
         `);
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         console.error('Error fetching employees:', error);
         res.status(500).json({ 
@@ -145,24 +144,22 @@ app.get('/api/employees', async (req, res, next) => {
 
 // Route to get employee by ID
 app.get('/api/employees/:id', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query(`
+    try {        const result = await pool.query(`
             SELECT 
-                EmployeeId, FName, LName, Nickname, Email, Department, 
-                Position, StartDate, Type, Status, ImageUrl,
-                MobileNumber, DateOfBirth, MaritalStatus, Gender,
-                Nationality, Address, City, State, ZIPCode,
-                BankName, AccountHolderName, AccountNumber, AccountType,
-                BankCode, BankStatus, BankLastUpdated, Salary, Age,
-                SlackID, SkypeID, GithubID
+                "EmployeeId", "FName", "LName", "Nickname", "Email", "Department", 
+                "Position", "StartDate", "Type", "Status", "ImageUrl",
+                "MobileNumber", "DateOfBirth", "MaritalStatus", "Gender",
+                "Nationality", "Address", "City", "State", "ZIPCode",
+                "BankName", "AccountHolderName", "AccountNumber", "AccountType",
+                "BankCode", "BankStatus", "BankLastUpdated", "Salary", "Age",
+                "SlackID", "SkypeID", "GithubID"
             FROM employees 
-            WHERE EmployeeId = ?
+            WHERE "EmployeeId" = $1
         `, [req.params.id]);
-        
-        if (rows.length > 0) {
+          if (result.rows.length > 0) {
             // Format null values as '-'
             const employee = Object.fromEntries(
-                Object.entries(rows[0]).map(([key, value]) => [key, value ?? '-'])
+                Object.entries(result.rows[0]).map(([key, value]) => [key, value ?? '-'])
             );
             res.json(employee);
         } else {
@@ -194,15 +191,15 @@ app.post('/api/employees', async (req, res, next) => {
         const employeeId = `EMP${yearMonth}${randomDigits}`;
         
         // Insert into employees table
-        const [result] = await pool.query(
+        const result = await pool.query(
             `INSERT INTO employees (
-                EmployeeId, FName, LName, Nickname, Age,
-                DateOfBirth, MaritalStatus, Gender, Nationality,
-                Address, City, State, ZIPCode, Email, MobileNumber,
-                Department, Position, Type, Status, StartDate,
-                ImageUrl
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-
+                "EmployeeId", "FName", "LName", "Nickname", "Age",
+                "DateOfBirth", "MaritalStatus", "Gender", "Nationality",
+                "Address", "City", "State", "ZIPCode", "Email", "MobileNumber",
+                "Department", "Position", "Type", "Status", "StartDate",
+                "ImageUrl"
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+            RETURNING *`,
             [
                 employeeId, firstName, lastName, nickname, age,
                 dob, maritalStatus, gender, nationality,
@@ -214,18 +211,16 @@ app.post('/api/employees', async (req, res, next) => {
         
         // If bank details are provided, store them in a separate table or update accordingly
         if (bankName && accountNumber) {
-            // Note: You might need to create a separate bank_details table
-            // For now we'll assume bank details are part of the employees table
             await pool.query(
                 `UPDATE employees SET 
-                    BankName = ?,
-                    AccountHolderName = ?,
-                    AccountNumber = ?,
-                    AccountType = ?,
-                    BankCode = ?,
-                    BankStatus = ?,
-                    BankLastUpdated = CURRENT_TIMESTAMP
-                WHERE EmployeeId = ?`,
+                    "BankName" = $1,
+                    "AccountHolderName" = $2,
+                    "AccountNumber" = $3,
+                    "AccountType" = $4,
+                    "BankCode" = $5,
+                    "BankStatus" = $6,
+                    "BankLastUpdated" = NOW()
+                WHERE "EmployeeId" = $7`,
                 [bankName, accountHolderName, accountNumber, accountType, bankCode, bankStatus, employeeId]
             );
         }
@@ -234,10 +229,10 @@ app.post('/api/employees', async (req, res, next) => {
         if (slackId || skypeId || githubId) {
             await pool.query(
                 `UPDATE employees SET 
-                    SlackID = ?,
-                    SkypeID = ?,
-                    GithubID = ?
-                WHERE EmployeeId = ?`,
+                    "SlackID" = $1,
+                    "SkypeID" = $2,
+                    "GithubID" = $3
+                WHERE "EmployeeId" = $4`,
                 [slackId || null, skypeId || null, githubId || null, employeeId]
             );
         }
@@ -252,10 +247,9 @@ app.post('/api/employees', async (req, res, next) => {
 });
 
 // Route to delete employee
-app.delete('/api/employees/:id', async (req, res, next) => {
-    try {
-        const [result] = await pool.query('DELETE FROM employees WHERE EmployeeId = ?', [req.params.id]);
-        if (result.affectedRows > 0) {
+app.delete('/api/employees/:id', async (req, res, next) => {    try {
+        const result = await pool.query('DELETE FROM employees WHERE "EmployeeId" = $1', [req.params.id]);
+        if (result.rowCount > 0) {
             res.json({ message: 'Employee deleted successfully' });
         } else {
             res.status(404).json({ error: 'Employee not found' });
@@ -276,17 +270,15 @@ app.put('/api/employees/:id', async (req, res, next) => {
             Type, Salary, BankName, AccountHolderName,
             AccountNumber, AccountType, BankCode, BankStatus,
             Email, SlackID, SkypeID, GithubID
-        } = req.body;
-
-        const [result] = await pool.query(
+        } = req.body;        const result = await pool.query(
             `UPDATE employees 
-             SET FName=?, LName=?, MobileNumber=?, Age=?, DateOfBirth=?,
-                 MaritalStatus=?, Gender=?, Nationality=?, Address=?, City=?,
-                 State=?, ZIPCode=?, Department=?, Position=?, Status=?,
-                 Type=?, Salary=?, BankName=?, AccountHolderName=?,
-                 AccountNumber=?, AccountType=?, BankCode=?, BankStatus=?,
-                 Email=?, SlackID=?, SkypeID=?, GithubID=?
-             WHERE EmployeeId=?`,
+             SET "FName"=$1, "LName"=$2, "MobileNumber"=$3, "Age"=$4, "DateOfBirth"=$5,
+                 "MaritalStatus"=$6, "Gender"=$7, "Nationality"=$8, "Address"=$9, "City"=$10,
+                 "State"=$11, "ZIPCode"=$12, "Department"=$13, "Position"=$14, "Status"=$15,
+                 "Type"=$16, "Salary"=$17, "BankName"=$18, "AccountHolderName"=$19,
+                 "AccountNumber"=$20, "AccountType"=$21, "BankCode"=$22, "BankStatus"=$23,
+                 "Email"=$24, "SlackID"=$25, "SkypeID"=$26, "GithubID"=$27
+             WHERE "EmployeeId"=$28`,
             [FName, LName, MobileNumber, Age, DateOfBirth,
              MaritalStatus, Gender, Nationality, Address, City,
              State, ZIPCode, Department, Position, Status,
@@ -294,8 +286,7 @@ app.put('/api/employees/:id', async (req, res, next) => {
              AccountNumber, AccountType, BankCode, BankStatus,
              Email, SlackID, SkypeID, GithubID, employeeId]
         );
-        
-        if (result.affectedRows > 0) {
+          if (result.rowCount > 0) {
             res.json({ message: 'Employee updated successfully' });
         } else {
             res.status(404).json({ error: 'Employee not found' });
@@ -308,12 +299,11 @@ app.put('/api/employees/:id', async (req, res, next) => {
 
 // Route to get attendance by employee ID
 app.get('/api/attendance/:id', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query(
-            'SELECT * FROM attendance WHERE EmployeeId = ? ORDER BY Date DESC',
+    try {        const result = await pool.query(
+            'SELECT * FROM attendance WHERE "EmployeeId" = $1 ORDER BY "Date" DESC',
             [req.params.id]
         );
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         next(error);
     }
@@ -321,25 +311,23 @@ app.get('/api/attendance/:id', async (req, res, next) => {
 
 // Route to get leave data by employee ID
 app.get('/api/leave/:id', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query(
-            'SELECT StartDate, EndDate, Reason, Status FROM leavetable WHERE EmployeeId = ? ORDER BY StartDate DESC',
+    try {        const result = await pool.query(
+            'SELECT "StartDate", "EndDate", "Reason", "Status" FROM leavetable WHERE "EmployeeId" = $1 ORDER BY "StartDate" DESC',
             [req.params.id]
         );
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         next(error);
     }
 });
 
 // Route to get projects by employee ID
-app.get('/api/projects/:id', async (req, res, next) => {
-    try {
-        const [projects] = await pool.query(
-            'SELECT ProjectName, StartDate, EndDate, Status FROM project WHERE EmployeeId = CAST(? AS SIGNED) ORDER BY StartDate DESC',
+app.get('/api/projects/:id', async (req, res, next) => {    try {
+        const result = await pool.query(
+            'SELECT "ProjectName", "StartDate", "EndDate", "Status" FROM project WHERE "EmployeeId" = $1 ORDER BY "StartDate" DESC',
             [req.params.id]
         );
-        res.json(projects);
+        res.json(result.rows);
     } catch (error) {
         next(error);
     }
@@ -348,28 +336,31 @@ app.get('/api/projects/:id', async (req, res, next) => {
 // Route to get total counts for dashboard
 app.get('/api/dashboard/counts', async (req, res, next) => {
     try {
-        const [[employeeCount]] = await pool.query('SELECT COUNT(*) as count FROM employees');
+        const employeeCount = await pool.query('SELECT COUNT(*) as count FROM employees');
+        const totalEmployees = employeeCount.rows[0].count;
         
         // Get total leaves count
-        const [[leavesCount]] = await pool.query('SELECT COUNT(*) as count FROM leaves');
+        const leavesCount = await pool.query('SELECT COUNT(*) as count FROM leaves');
+        const totalLeaves = leavesCount.rows[0].count;
         
         // Get total disbursement amount
-        const [[disbursementTotal]] = await pool.query('SELECT COALESCE(SUM(Amount), 0) as total FROM disbursements');
+        const disbursementTotal = await pool.query('SELECT COALESCE(SUM("Amount"), 0) as total FROM disbursements');
+        const totalDisbursement = disbursementTotal.rows[0].total;
         
         // Get previous month's counts for percentage changes
         const lastMonth = new Date();
         lastMonth.setMonth(lastMonth.getMonth() - 1);
         const lastMonthStr = lastMonth.toISOString().split('T')[0].substring(0, 7); // YYYY-MM
-        
-        const [[lastMonthLeaves]] = await pool.query(
-            'SELECT COUNT(*) as count FROM leaves WHERE DATE_FORMAT(StartDate, "%Y-%m") = ?',
+          const lastMonthLeaves = await pool.query(
+            'SELECT COUNT(*) as count FROM leaves WHERE TO_CHAR("StartDate", \'YYYY-MM\') = $1',
             [lastMonthStr]
         );
-        
-        const [[lastMonthDisbursement]] = await pool.query(
-            'SELECT COALESCE(SUM(Amount), 0) as total FROM disbursements WHERE DATE_FORMAT(DisbursementDate, "%Y-%m") = ?',
+        const lastMonthLeavesCount = lastMonthLeaves.rows[0].count;
+          const lastMonthDisbursement = await pool.query(
+            'SELECT COALESCE(SUM("Amount"), 0) as total FROM disbursements WHERE TO_CHAR("DisbursementDate", \'YYYY-MM\') = $1',
             [lastMonthStr]
         );
+        const lastMonthDisbursementTotal = lastMonthDisbursement.rows[0].total;
 
         // Calculate percentage changes
         const leavesChange = lastMonthLeaves.count === 0 ? '+0%' : 
@@ -377,15 +368,16 @@ app.get('/api/dashboard/counts', async (req, res, next) => {
         
         const disbursementChange = lastMonthDisbursement.total === 0 ? '+0%' : 
             `${((disbursementTotal.total - lastMonthDisbursement.total) / lastMonthDisbursement.total * 100).toFixed(0)}%`;
-        
-        res.json({
-            totalEmployees: employeeCount.count || 0,
-            totalDisbursement: disbursementTotal.total || 0,
-            totalLeaves: leavesCount.count || 0,
+          res.json({
+            totalEmployees: totalEmployees || 0,
+            totalDisbursement: totalDisbursement || 0,
+            totalLeaves: totalLeaves || 0,
             employeeChange: '+4%', // Hardcoded for now, can be made dynamic later
             applicantChange: '-2%', // Hardcoded for now, can be made dynamic later
-            disbursementChange,
-            leavesChange
+            disbursementChange: lastMonthLeavesCount === 0 ? '+0%' : 
+                `${((totalLeaves - lastMonthLeavesCount) / lastMonthLeavesCount * 100).toFixed(0)}%`,
+            leavesChange: lastMonthDisbursementTotal === 0 ? '+0%' : 
+                `${((totalDisbursement - lastMonthDisbursementTotal) / lastMonthDisbursementTotal * 100).toFixed(0)}%`
         });
     } catch (error) {
         next(error);
@@ -394,11 +386,10 @@ app.get('/api/dashboard/counts', async (req, res, next) => {
 
 // Route to get all news
 app.get('/api/news', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query(
-            'SELECT * FROM news ORDER BY isPinned DESC, CreatedAt DESC'
+    try {        const result = await pool.query(
+            'SELECT * FROM news ORDER BY "isPinned" DESC, "CreatedAt" DESC'
         );
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         console.error('Error fetching news:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -420,15 +411,15 @@ app.post('/api/news', async (req, res, next) => {
             await file.mv(`./uploads/${fileName}`);
             attachment = fileName;
         }
-        
-        const [result] = await pool.query(
-            `INSERT INTO news (Title, Category, Content, CreatedAt, Attachment) 
-             VALUES (?, ?, ?, ?, ?)`,
+          const result = await pool.query(
+            `INSERT INTO news ("Title", "Category", "Content", "CreatedAt", "Attachment") 
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING *`,
             [title, category, content, createdDate || new Date(), attachment]
         );
         
-        if (result.insertId) {
-            const [[newNews]] = await pool.query('SELECT * FROM news WHERE NewsId = ?', [result.insertId]);
+        if (result.rows[0]) {
+            const newNews = result.rows[0];
             
             // Send email notification after successful news creation
             await sendEmailNotification({
@@ -454,10 +445,9 @@ app.post('/api/news', async (req, res, next) => {
 
 // Route to get a single news item
 app.get('/api/news/:id', async (req, res, next) => {
-    try {
-        const [rows] = await pool.query('SELECT * FROM news WHERE NewsId = ?', [req.params.id]);
-        if (rows.length > 0) {
-            res.json(rows[0]);
+    try {        const result = await pool.query('SELECT * FROM news WHERE "NewsId" = $1', [req.params.id]);
+        if (result.rows.length > 0) {
+            res.json(result.rows[0]);
         } else {
             res.status(404).json({ error: 'News not found' });
         }
@@ -480,23 +470,20 @@ app.put('/api/news/:id', async (req, res, next) => {
             // Move the file to uploads directory
             await file.mv(`./uploads/${fileName}`);
             attachment = fileName;
-        }
-
-        // Build the SQL query based on whether there's an attachment
-        let sql = `UPDATE news SET Title = ?, Category = ?, Content = ?`;
+        }        // Build the SQL query based on whether there's an attachment
+        let sql = `UPDATE news SET "Title" = $1, "Category" = $2, "Content" = $3`;
         let params = [title, category, content];
 
         if (attachment) {
-            sql += `, Attachment = ?`;
+            sql += `, "Attachment" = $${params.length + 1}`;
             params.push(attachment);
         }
 
-        sql += ` WHERE NewsId = ?`;
+        sql += ` WHERE "NewsId" = $${params.length + 1}`;
         params.push(req.params.id);
 
-        const [result] = await pool.query(sql, params);
-        
-        if (result.affectedRows > 0) {
+        const result = await pool.query(sql, params);
+          if (result.rowCount > 0) {
             res.json({ message: 'News updated successfully' });
         } else {
             res.status(404).json({ error: 'News not found' });
@@ -509,9 +496,8 @@ app.put('/api/news/:id', async (req, res, next) => {
 
 // Route to delete news
 app.delete('/api/news/:id', async (req, res, next) => {
-    try {
-        const [result] = await pool.query('DELETE FROM news WHERE NewsId = ?', [req.params.id]);
-        if (result.affectedRows > 0) {
+    try {        const result = await pool.query('DELETE FROM news WHERE "NewsId" = $1', [req.params.id]);
+        if (result.rowCount > 0) {
             res.json({ message: 'News deleted successfully' });
         } else {
             res.status(404).json({ error: 'News not found' });
@@ -530,10 +516,8 @@ app.put('/api/news/:id/toggle-pin', async (req, res) => {
     // Validate input
     if (typeof isPinned !== 'number' || ![0, 1].includes(isPinned)) {
       return res.status(400).json({ error: 'isPinned must be 0 or 1' });
-    }
-
-    const [result] = await pool.query(
-      'UPDATE news SET isPinned = ? WHERE NewsId = ?',
+    }    const result = await pool.query(
+      'UPDATE news SET "isPinned" = $1 WHERE "NewsId" = $2',
       [isPinned, id]
     );
 
@@ -561,9 +545,8 @@ app.put('/api/news/:id/toggle-visibility', async (req, res) => {
     try {
       const { id } = req.params;
       const { Hidenews } = req.body;
-      
-      const [result] = await pool.query(
-        'UPDATE news SET Hidenews = ? WHERE NewsId = ?',
+        const result = await pool.query(
+        'UPDATE news SET "Hidenews" = $1 WHERE "NewsId" = $2',
         [Hidenews, id]
       );
   
