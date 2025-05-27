@@ -50,9 +50,7 @@ function New() {
   ];
 
   useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => setNews(data));
+    fetchNews();
   }, []);
 
   const fetchNews = async () => {
