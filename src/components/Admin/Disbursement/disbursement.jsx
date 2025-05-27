@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiPlus, FiFilter, FiArrowLeft, FiEdit, FiCheck, FiX, FiSave, FiUpload } from 'react-icons/fi';
 import SideMenu from '../SideMenu/Side_menu';
@@ -93,21 +93,9 @@ const Disbursement = () => {
   ];
 
   useEffect(() => {
-    // Fetch data from API instead of using mock data
-    const fetchDisbursements = async () => {
-      try {
-        const response = await axios.get(API_URL);
-        // Map employeename to employeeName for frontend consistency
-        const mapped = response.data.map(item => ({
-          ...item,
-          employeeName: item.employeename || item.employeeName // fallback for mock data
-        }));
-        setDisbursements(mapped);
-      } catch (error) {
-        console.error('Error fetching disbursements:', error);
-      }
-    };
-    fetchDisbursements();
+    fetch(`${import.meta.env.VITE_API_URL}/api/disbursements`)
+      .then(res => res.json())
+      .then(data => setDisbursements(data));
   }, []);
 
   const handleApprove = (id) => {

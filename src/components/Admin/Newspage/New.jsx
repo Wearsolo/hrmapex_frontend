@@ -50,7 +50,9 @@ function New() {
   ];
 
   useEffect(() => {
-    fetchNews();
+    fetch(`${import.meta.env.VITE_API_URL}/api/news`)
+      .then(res => res.json())
+      .then(data => setNews(data));
   }, []);
 
   const fetchNews = async () => {
