@@ -265,31 +265,127 @@
   }
 }
 
-/* Responsive Design */
+/* Enhanced Responsive Design */
 @media (max-width: 768px) {
-  .dashboard-main {
-    margin-left: 0;
+  /* Hide sidemenu on mobile */
+  .sidebar {
+    display: none !important;
   }
 
-  .dashboard-main.expanded {
-    margin-left: 0;
+  /* Adjust main content area */
+  .dashboard-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0.5rem;
   }
 
   .form-content-wrapper {
-    padding: 0 1rem;
-    margin-top: 3.5rem;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    max-width: 100%;
+  }
+
+  /* Adjust container for full width */
+  .adddisburse-form-container {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .adddisburse-form-container {
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 0.5rem;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .form-group.full-width {
-    grid-column: auto;
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .save-button {
+    padding: 0.875rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+  }
+
+  .upload-area-doc {
+    min-height: 150px;
+    padding: 1rem;
+  }
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .upload-icon svg {
+    font-size: 24px;
+  }
+
+  .upload-label p {
+    font-size: 0.9rem;
+  }
+
+  .supported-text {
+    font-size: 0.75rem !important;
+  }
+
+  .uploaded-files {
+    max-height: 120px;
+  }
+
+  .uploaded-file {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .back-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+  }
+
+  /* Improve touch targets */
+  .remove-file {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Adjust animation for better mobile performance */
+  .circles li,
+  .circles-bottom li {
+    animation-duration: 35s !important;
+  }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 480px) {
+  .form-content-wrapper {
+    padding: 0.5rem 0;
   }
 
   .adddisburse-form-container {
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
   }
 }
 
