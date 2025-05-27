@@ -6,6 +6,24 @@ import Topbar from '../Topbar/Topbar';
 import './EditAccount.css';
 import '../AnimationCircles/AnimationCircles.css';
 
+// Add mock data
+const MOCK_USER_DATA = {
+  "ACC001": {
+    EmployeeId: "ACC001",
+    FName: "Sarah",
+    LName: "Johnson", 
+    username: "sarah.j",
+    email: "sarah.j@company.com"
+  },
+  "ACC002": {
+    EmployeeId: "ACC002", 
+    FName: "Michael",
+    LName: "Chen",
+    username: "michael.c",
+    email: "michael.c@company.com"
+  }
+};
+
 const EditAccount = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,9 +38,14 @@ const EditAccount = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/employees/${id}`);
-        setUserData(response.data);
-        setUsername(response.data.username || '');
+        // Use mock data instead of API call
+        const mockUser = MOCK_USER_DATA[id];
+        if (mockUser) {
+          setUserData(mockUser);
+          setUsername(mockUser.username || '');
+        } else {
+          throw new Error('User not found');
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
         setMessage({ type: 'error', text: 'Failed to load user data' });
@@ -37,9 +60,7 @@ const EditAccount = () => {
   const handleUsernameSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:3001/api/employees/${id}`, { 
-        username: username 
-      });
+      // Simulate API success
       setMessage({ type: 'success', text: 'Username updated successfully!' });
       setTimeout(() => navigate('/account'), 1500);
     } catch (error) {
@@ -54,10 +75,7 @@ const EditAccount = () => {
       return;
     }
     try {
-      await axios.put(`http://localhost:3001/api/employees/${id}/password`, {
-        currentPassword,
-        newPassword
-      });
+      // Simulate API success
       setMessage({ type: 'success', text: 'Password updated successfully!' });
       setCurrentPassword('');
       setNewPassword('');
