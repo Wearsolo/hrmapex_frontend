@@ -7,7 +7,7 @@ import './EditNewsModal.css';
 import SideMenu from "../SideMenu/Side_menu";
 import Topbar from "../Topbar/Topbar";
 
-const API_URL = 'http://localhost:3001/api/news';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/news`;
 
 function mapApiNewsData(apiData) {
   // Map API fields to UI fields
@@ -50,7 +50,7 @@ function New() {
   ];
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/news`)
+    fetch(API_URL)
       .then(res => res.json())
       .then(data => setNews(data));
   }, []);

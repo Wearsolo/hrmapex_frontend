@@ -7,7 +7,7 @@ import './disbursement.css';
 import '../AnimationCircles/AnimationCircles.css';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api/disbursements';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/disbursements`;
 
 const Disbursement = () => {
   const navigate = useNavigate();
@@ -93,9 +93,16 @@ const Disbursement = () => {
   ];
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/disbursements`)
+    fetch(API_URL)
       .then(res => res.json())
-      .then(data => setDisbursements(data));
+      .then(data => {
+        // Map employeename (จาก backend) เป็น employeeName (frontend)
+        const mapped = data.map(item => ({
+          ...item,
+          employeeName: item.employeename || item.employeeName
+        }));
+        setDisbursements(mapped);
+      });
   }, []);
 
   const handleApprove = (id) => {
