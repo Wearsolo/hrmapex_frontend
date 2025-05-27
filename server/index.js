@@ -386,66 +386,77 @@ app.get('/api/dashboard/counts', async (req, res, next) => {
 
 // Route to get all news
 app.get('/api/news', async (req, res, next) => {
-    try {        const result = await pool.query(
-            'SELECT * FROM news ORDER BY "isPinned" DESC, "CreatedAt" DESC'
-        );
-        res.json(result.rows);
+    try {
+        const result = await pool.query(`
+            SELECT 
+                "newsId",
+                "title",
+                "content",
+                "category",
+                "attachment",
+                "created_at",
+                "isPinned",
+                "isVisible"
+            FROM news 
+            ORDER BY "isPinned" DESC, "created_at" DESC
+        `);
+        
+        // Map the results and format the dates
+        const news = result.rows.map(item => ({
+            ...item,
+            created_at: new Date(item.created_at).toISOString()
+        }));
+        
+        res.json(news);
     } catch (error) {
         console.error('Error fetching news:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 
-// Route to add new news
+// Route to create new news
 app.post('/api/news', async (req, res, next) => {
     try {
-        const { title, category, content, createdDate } = req.body;
+        const { title, content, category } = req.body;
         let attachment = null;
 
-        // Handle file upload if present
+        // Handle file upload if there is one
         if (req.files && req.files.attachment) {
             const file = req.files.attachment;
-            const fileName = `${Date.now()}-${file.name}`;
+            const timestamp = Date.now();
+            const fileName = `${timestamp}-${file.name}`;
             
-            // Move the file to uploads directory
-            await file.mv(`./uploads/${fileName}`);
+            // Move file to uploads directory
+            await file.mv(`uploads/${fileName}`);
             attachment = fileName;
         }
-          const result = await pool.query(
-            `INSERT INTO news ("Title", "Category", "Content", "CreatedAt", "Attachment") 
-             VALUES ($1, $2, $3, $4, $5)
-             RETURNING *`,
-            [title, category, content, createdDate || new Date(), attachment]
-        );
-        
-        if (result.rows[0]) {
-            const newNews = result.rows[0];
-            
-            // Send email notification after successful news creation
-            await sendEmailNotification({
-                newsId: newNews.NewsId,
-                title: newNews.Title,
-                category: newNews.Category,
-                content: newNews.Content,
-                attachment: newNews.Attachment // Pass the attachment filename to email notification
-            });
 
-            res.status(201).json({ 
-                message: 'News added successfully',
-                news: newNews
-            });
-        } else {
-            throw new Error('Failed to add news');
-        }
+        // Insert into database
+        const result = await pool.query(`
+            INSERT INTO news ("title", "content", "category", "attachment", "created_at", "isPinned", "isVisible")
+            VALUES ($1, $2, $3, $4, NOW(), false, true)
+            RETURNING *
+        `, [title, content, category, attachment]);
+
+        const newsData = result.rows[0];
+        
+        // Send email notification
+        await sendEmailNotification(newsData);
+        
+        res.status(201).json({
+            success: true,
+            news: newsData
+        });
     } catch (error) {
-        console.error('Error adding news:', error);
+        console.error('Error creating news:', error);
         next(error);
     }
 });
 
 // Route to get a single news item
 app.get('/api/news/:id', async (req, res, next) => {
-    try {        const result = await pool.query('SELECT * FROM news WHERE "NewsId" = $1', [req.params.id]);
+    try {
+        const result = await pool.query('SELECT * FROM news WHERE "NewsId" = $1', [req.params.id]);
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
         } else {

@@ -9,6 +9,74 @@ import FilterModal from '../FilterModal/FilterModal'
 import './AllEmployees.css'
 import '../AnimationCircles/AnimationCircles.css'
 
+const MOCK_EMPLOYEES = [
+  {
+    EmployeeId: "EMP001",
+    FName: "Sarah",
+    LName: "Johnson",
+    Nickname: "Sara",
+    Email: "sarah.j@company.com",
+    MobileNumber: "081-234-5678",
+    Position: "Senior Developer",
+    Department: "IT",
+    Type: "Full-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/women/32.jpg"
+  },
+  {
+    EmployeeId: "EMP002",
+    FName: "Michael",
+    LName: "Chen",
+    Nickname: "Mike",
+    Email: "michael.c@company.com",
+    MobileNumber: "089-876-5432",
+    Position: "Marketing Manager",
+    Department: "Marketing",
+    Type: "Full-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/men/45.jpg"
+  },
+  {
+    EmployeeId: "EMP003",
+    FName: "Emma",
+    LName: "Wilson",
+    Nickname: "Em",
+    Email: "emma.w@company.com",
+    MobileNumber: "086-345-6789",
+    Position: "HR Specialist",
+    Department: "Human Resources",
+    Type: "Part-time",
+    Status: "Active",
+    ImageUrl: "https://randomuser.me/api/portraits/women/68.jpg"
+  },
+  {
+    EmployeeId: "EMP004",
+    FName: "David",
+    LName: "Thompson",
+    Nickname: "Dave",
+    Email: "david.t@company.com",
+    MobileNumber: "083-567-8901",
+    Position: "Financial Analyst",
+    Department: "Finance",
+    Type: "Contract",
+    Status: "On Leave",
+    ImageUrl: "https://randomuser.me/api/portraits/men/22.jpg"
+  },
+  {
+    EmployeeId: "EMP005",
+    FName: "Lisa",
+    LName: "Garcia",
+    Nickname: "Lis",
+    Email: "lisa.g@company.com",
+    MobileNumber: "087-890-1234",
+    Position: "Sales Representative",
+    Department: "Sales",
+    Type: "Full-time",
+    Status: "Inactive",
+    ImageUrl: "https://randomuser.me/api/portraits/women/89.jpg"
+  }
+];
+
 const AllEmployees = () => {
   const [employees, setEmployees] = useState([])
   const [filteredEmployees, setFilteredEmployees] = useState([])
@@ -49,20 +117,20 @@ const AllEmployees = () => {
       try {
         setIsLoading(true)
         setError(null)
-        const response = await axios.get('http://localhost:3001/api/employees', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        setEmployees(response.data)
-        setFilteredEmployees(response.data)
+        // Comment out the actual API call and use mock data instead
+        // const response = await axios.get('http://localhost:3001/api/employees', {
+        //   headers: {
+        //     'Authorization': `Bearer ${token}`
+        //   }
+        // })
+        // setEmployees(response.data)
+        // setFilteredEmployees(response.data)
+        
+        // Use mock data
+        setEmployees(MOCK_EMPLOYEES)
+        setFilteredEmployees(MOCK_EMPLOYEES)
       } catch (error) {
         console.error('Error fetching employees:', error)
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token')
-          localStorage.removeItem('isLoggedIn')
-          navigate('/login')
-        }
         setError('Failed to fetch employees. Please try again later.')
       } finally {
         setIsLoading(false)
