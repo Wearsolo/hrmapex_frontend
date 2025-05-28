@@ -68,7 +68,7 @@
 }
 
 .account-search-bar:focus-within .account-search-icon {
-  color: #7152f3;
+  color: #6366f1;
 }
 
 .account-search-bar input {
@@ -87,7 +87,7 @@
 
 .account-search-bar input:focus {
   outline: none;
-  border-color: #7152f3;
+  border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(113, 82, 243, 0.1);
 }
 
@@ -106,7 +106,7 @@
 }
 
 .account-table thead {
-  background: #7152f3;
+  background: #6366f1;
 }
 
 .account-table th {
