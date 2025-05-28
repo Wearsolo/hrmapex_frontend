@@ -28,6 +28,7 @@ function AddNew() {
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [errors, setErrors] = useState({})
   const [showConfirmation, setShowConfirmation] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -94,17 +95,18 @@ function AddNew() {
     }
   }
   const handleConfirmSubmit = async () => {
+    setIsLoading(true); // Start loading
     try {
       // Create FormData object to send multipart/form-data
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('content', formData.content);
-      // createdDate is not used in backend, so skip it
       // Only send the first file as 'attachment' (backend supports one file)
       if (formData.documents && formData.documents.length > 0) {
         formDataToSend.append('attachment', formData.documents[0]);
       }
+
       // Send the data to the server
       const response = await axios.post(API_URL, formDataToSend, {
         headers: {
@@ -118,6 +120,8 @@ function AddNew() {
     } catch (error) {
       console.error('Error submitting form:', error);
       alert(error.response?.data?.message || 'Failed to add news. Please try again.');
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   }
 
@@ -302,23 +306,36 @@ function AddNew() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0 }}
               >
-                <h3>Confirm Submission</h3>
-                <p>Are you sure you want to add this news?</p>
-                <div className="confirmation-actions">
-                  <button 
-                    className="btn-cancel" 
-                    onClick={() => setShowConfirmation(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    className="btn-submit"
-                    onClick={handleConfirmSubmit}
-                  >
-                    Confirm
-                  </button>
-                </div>
+                {isLoading ? (
+                  <div className="loading-indicator">Submitting...</div>
+                ) : (
+                  <>
+                    <h3>Confirm Submission</h3>
+                    <p>Are you sure you want to add this news?</p>
+                    <div className="confirmation-actions">
+                      <button 
+                        className="btn-cancel" 
+                        onClick={() => setShowConfirmation(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        className="btn-submit"
+                        onClick={handleConfirmSubmit}
+                      >
+                        Confirm
+                      </button>
+                    </div>
+                  </>
+                )}
               </motion.div>
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+              <p>Submitting...</p>
             </div>
           )}
         </motion.div>
