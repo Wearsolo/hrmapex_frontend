@@ -201,7 +201,6 @@ function New() {
         setSelectedNews(null);
         
         // แจ้งเตือนว่าลบสำเร็จ
-        alert('News deleted successfully');
       } else {
         throw new Error('Failed to delete news');
       }
