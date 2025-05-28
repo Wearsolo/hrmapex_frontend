@@ -82,9 +82,15 @@ function AddNew() {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (validateForm()) {
       setShowConfirmation(true)
+    } else {
+      // Scroll to the first error field
+      const firstErrorField = document.querySelector('.error-text');
+      if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
   const handleConfirmSubmit = async () => {
@@ -220,23 +226,25 @@ function AddNew() {
           <div className="news-form-container">
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Title</label>
+                <label>Title <span style={{ color: 'red' }}>*</span></label>
                 <input
                   type="text"
                   name="title"
                   placeholder="Enter news title"
                   value={formData.title}
                   onChange={handleChange}
+                  className={errors.title ? 'input-field error' : 'input-field'}
                 />
                 {errors.title && <span className="error-text">{errors.title}</span>}
               </div>
 
               <div className="form-group">
-                <label>Category</label>
+                <label>Category <span style={{ color: 'red' }}>*</span></label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
+                  className={errors.category ? 'input-field error' : 'input-field'}
                 >
                   <option value="">Select category</option>
                   <option value="Announcement">Announcement</option>
@@ -247,13 +255,14 @@ function AddNew() {
               </div>
 
               <div className="form-group">
-                <label>Content</label>
+                <label>Content <span style={{ color: 'red' }}>*</span></label>
                 <textarea
                   name="content"
                   placeholder="Enter news content"
                   value={formData.content}
                   onChange={handleChange}
                   rows="6"
+                  className={errors.content ? 'input-field error' : 'input-field'}
                 />
                 {errors.content && <span className="error-text">{errors.content}</span>}
               </div>
