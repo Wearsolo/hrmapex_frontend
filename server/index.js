@@ -456,7 +456,7 @@ app.post('/api/news', async (req, res, next) => {
 // Route to get a single news item
 app.get('/api/news/:id', async (req, res, next) => {
     try {
-        const result = await pool.query('SELECT * FROM news WHERE "NewsId" = $1', [req.params.id]);
+        const result = await pool.query('SELECT * FROM news WHERE newsid = $1', [req.params.id]);
         if (result.rows.length > 0) {
             res.json(result.rows[0]);
         } else {
@@ -490,7 +490,7 @@ app.put('/api/news/:id', async (req, res, next) => {
             params.push(attachment);
         }
 
-        sql += ` WHERE "NewsId" = $${params.length + 1}`;
+        sql += ` WHERE newsid = $${params.length + 1}`;
         params.push(req.params.id);
 
         const result = await pool.query(sql, params);
@@ -507,7 +507,8 @@ app.put('/api/news/:id', async (req, res, next) => {
 
 // Route to delete news
 app.delete('/api/news/:id', async (req, res, next) => {
-    try {        const result = await pool.query('DELETE FROM news WHERE "NewsId" = $1', [req.params.id]);
+    try {
+        const result = await pool.query('DELETE FROM news WHERE newsid = $1', [req.params.id]);
         if (result.rowCount > 0) {
             res.json({ message: 'News deleted successfully' });
         } else {
