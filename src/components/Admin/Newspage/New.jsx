@@ -172,21 +172,43 @@ function New() {
   const handleDelete = async (id) => {
     setSelectedNews(id);
     setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
+  };  const confirmDelete = async () => {
     try {
+      // เรียก API เพื่อลบข่าวจาก Render database
       const response = await axios.delete(`${API_URL}/${selectedNews}`);
-      if (response.data) {
-        // Remove the deleted news from the state
+      
+      // ตรวจสอบการตอบกลับจาก API
+      if (response.status === 200) {
+        // ลบข้อมูลออกจาก state ในแอพ
         setNews(prevNews => prevNews.filter(item => item.NewsId !== selectedNews));
-        // Close modal and clear selection
+        
+        // ลบออกจากรายการที่ปักหมุดถ้ามี
+        setPinnedNews(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(selectedNews);
+          return newSet;
+        });
+        
+        // ลบออกจากรายการที่ซ่อนถ้ามี
+        setHiddenNews(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(selectedNews);
+          return newSet;
+        });
+        
+        // ปิด modal และล้างค่าที่เลือก
         setDeleteModalOpen(false);
         setSelectedNews(null);
+        
+        // แจ้งเตือนว่าลบสำเร็จ
+        alert('News deleted successfully');
+      } else {
+        throw new Error('Failed to delete news');
       }
     } catch (error) {
       console.error('Error deleting news:', error);
-      alert('Failed to delete news. Please try again.');
+      // แสดงข้อความ error ที่ได้จาก server หรือข้อความ default
+      alert(error.response?.data?.error || error.response?.data?.message || 'Failed to delete news. Please try again.');
     }
   };
 

@@ -7,7 +7,7 @@ import SideMenu from '../../SideMenu/Side_menu'
 import Topbar from '../../Topbar/Topbar'
 import './Addnew.css'
 
-const API_URL = 'http://localhost:3001/api/news'
+const API_URL = `${import.meta.env.VITE_API_URL}/api/news`
 
 const truncateFileName = (fileName) => {
   if (fileName.length <= 20) return fileName;

@@ -95,7 +95,7 @@ function Login() {
 
     try {
       // Check admin credentials
-      if (email === 'admin@gmail.com' && password === '123456') {
+      if (email === 'admin@gmail.com' && password === '111111') {
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', email)
           localStorage.setItem('rememberedPassword', password)
