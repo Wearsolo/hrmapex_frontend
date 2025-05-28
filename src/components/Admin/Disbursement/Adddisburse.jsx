@@ -17,6 +17,7 @@ const Adddisburse = () => {
     attachments: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,8 +44,32 @@ const Adddisburse = () => {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.employeeName.trim()) {
+      newErrors.employeeName = 'Employee Name is required';
+    }
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
+    }
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      newErrors.amount = 'Amount must be greater than 0';
+    }
+    // Remove validation for 'Details'
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      // Scroll to the first error field
+      const firstErrorField = document.querySelector('.error-text');
+      if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -131,23 +156,26 @@ const Adddisburse = () => {
             <form onSubmit={handleSubmit} className="adddisburse-form">
               <div className="form-grid">
                 <div className="form-group">
-                  <label>Employee Name</label>
+                  <label>Employee Name <span style={{ color: 'red' }}>*</span></label>
                   <input
                     type="text"
                     name="employeeName"
                     value={formData.employeeName}
                     onChange={handleChange}
                     placeholder="Enter name"
+                    className={errors.employeeName ? 'input-field error' : 'input-field'}
                     required
                   />
+                  {errors.employeeName && <span className="error-text">{errors.employeeName}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label>Category</label>
+                  <label>Category <span style={{ color: 'red' }}>*</span></label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
+                    className={errors.category ? 'input-field error' : 'input-field'}
                     required
                   >
                     <option value="">Select category</option>
@@ -156,10 +184,11 @@ const Adddisburse = () => {
                     <option value="ค่าอุปกรณ์">ค่าอุปกรณ์</option>
                     <option value="อื่นๆ">อื่นๆ</option>
                   </select>
+                  {errors.category && <span className="error-text">{errors.category}</span>}
                 </div>
 
                 <div className="form-group">
-                  <label>Amount</label>
+                  <label>Amount <span style={{ color: 'red' }}>*</span></label>
                   <input
                     type="number"
                     name="amount"
@@ -168,8 +197,10 @@ const Adddisburse = () => {
                     placeholder="0.00"
                     min="0"
                     step="0.01"
+                    className={errors.amount ? 'input-field error' : 'input-field'}
                     required
                   />
+                  {errors.amount && <span className="error-text">{errors.amount}</span>}
                 </div>
 
                 <div className="form-group">
@@ -191,7 +222,7 @@ const Adddisburse = () => {
                     onChange={handleChange}
                     placeholder="Enter disbursement details"
                     rows="3"
-                    required
+                    // Remove 'required' attribute
                   />
                 </div>
 
