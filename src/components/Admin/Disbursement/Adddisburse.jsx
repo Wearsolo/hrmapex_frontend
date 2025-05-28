@@ -63,7 +63,6 @@ const Adddisburse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      // Scroll to the first error field
       const firstErrorField = document.querySelector('.error-text');
       if (firstErrorField) {
         firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -73,8 +72,11 @@ const Adddisburse = () => {
     setIsSubmitting(true);
 
     try {
-      // Send email notification
-      const notificationResponse = await fetch('http://localhost:3001/api/disbursement/new-notification', {
+      // ใช้ URL ที่ถูกต้องจาก environment variable
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      
+      // 1. บันทึกข้อมูลลง database ด้วย JSON
+      const saveRes = await fetch(`${API_URL}/api/disbursements`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,18 +86,44 @@ const Adddisburse = () => {
           category: formData.category,
           amount: parseFloat(formData.amount),
           date: formData.date,
-          details: formData.details
+          details: formData.details || '',
+          status: 'Pending' // เพิ่ม default status
         })
       });
 
-      if (!notificationResponse.ok) {
-        throw new Error('Failed to send notification');
+      if (!saveRes.ok) {
+        throw new Error(`Failed to save disbursement: ${saveRes.status} ${saveRes.statusText}`);
       }
 
-      console.log('Form submitted:', formData);
+      try {
+        // 2. ส่ง email notification (แยก try-catch เพื่อไม่ให้กระทบการบันทึกหลัก)
+        const notifyRes = await fetch(`${API_URL}/api/disbursement/new-notification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            employeeName: formData.employeeName,
+            category: formData.category,
+            amount: parseFloat(formData.amount),
+            date: formData.date,
+            details: formData.details || ''
+          })
+        });
+
+        if (!notifyRes.ok) {
+          console.warn('Email notification failed, but disbursement was saved');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed:', emailError);
+      }
+
+      // ถ้าบันทึกสำเร็จ redirect ไปหน้า disbursement
       navigate('/disbursement');
+      
     } catch (error) {
       console.error('Error:', error);
+      alert(error.message);
     } finally {
       setIsSubmitting(false);
     }
