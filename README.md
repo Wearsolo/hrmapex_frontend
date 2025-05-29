@@ -1,37 +1,67 @@
 # 💼 HR Management System
 
-A modern, full-featured HR management platform built with **React (Vite)** and **Node.js**, designed for seamless employee management and intuitive dashboards — with real-time search, and smooth performance.
-
----
+A comprehensive HR Management System built with **React** and **Node.js**, designed to streamline HR operations and employee management.
 
 ## ✨ Features
 
 🔹 **Employee Management**  
-– Add, edit, delete, and filter employees  
-– View detailed employee profiles  
-– Department and work-type filters  
-– Instant keyword search  
+– Complete employee lifecycle management  
+– Detailed employee profiles with personal and professional information  
+– Department and position-based filtering  
+– Quick search functionality  
 
-🔹 **Dashboard**  
-– Visual summary of HR metrics  
-– Attendance and payroll overview  
-– Interactive charts and data cards  
+🔹 **Leave Management**  
+– Configurable leave types with duration limits  
+– Leave request tracking and approval workflow  
+– Leave balance monitoring  
+– Detailed leave reports  
 
-🔹 **Smart UI/UX**  
-– Responsive design (desktop & mobile)  
+🔹 **Disbursement Management**  
+– Track financial disbursements and claims  
+– Multi-category support (Travel, etc.)  
+– Status tracking and filtering  
+
+🔹 **Payroll System**  
+– Salary management and payroll processing  
+– Detailed payroll reports  
+– Salary component breakdown  
+– Payment history tracking  
+
+🔹 **News & Announcements**  
+– Company-wide announcements  
+– News categorization and pinning  
+– Attachment support  
+– Visibility controls  
+
+🔹 **Holiday Management**  
+– Official holiday calendar  
+– Custom company events  
+– Holiday type categorization  
+– Duration tracking  
+
+🔹 **Account Management**  
+– Role-based access control  
+– Account status monitoring  
+– Profile management  
+– Security settings  
+
+🔹 **Modern UI/UX**  
+– Responsive design for all devices  
 – Smooth animations with Framer Motion  
-– Tailwind-powered layout with custom styles  
+– Clean and intuitive interface  
+– Interactive data visualization  
 
 
 
 ## ⚙️ Tech Stack
 
 - ⚛️ React 18 + Vite  
-- 🎨 Tailwind CSS + CSS Modules  
-- 🎞️ Framer Motion  
-- 🌐 Node.js (Express backend)  
-- 🧠 Context API for state management  
-- 🔁 Axios-based services layer  
+- 🎨 Tailwind CSS  
+- 🎞️ Framer Motion for animations  
+- 🌐 Node.js Express backend  
+- 🗃️ PostgreSQL database  
+- 🔄 Axios for API communication  
+- 🎯 Context API for state management  
 
 
 
@@ -62,17 +92,16 @@ hrmanagement/
 ├── server/                 # Node.js backend (API & logic)
 ├── src/
 │   ├── assets/            # Static assets (images, icons)
-│   ├── components/        # All React UI components
+│   ├── components/        # React components
+│   │   ├── Admin/         # Admin interface components
+│   │   └── User/          # User interface components
 │   ├── context/           # Global state management
-│   ├── database/          # SQL scripts and schema
-│   ├── services/          # API call wrappers (axios)
-│   ├── styles/            # Tailwind + custom styles
-│   ├── App.jsx            # Root React component
-│   ├── main.jsx           # Entry point
-│   └── index.css          # Base styles
-├── uploads/               # User-uploaded files (images/docs)
-├── index.html             # App HTML shell
-├── vite.config.js         # Vite config
+│   ├── database/          # Database interactions
+│   ├── services/          # API services
+│   ├── styles/           # Global styles
+│   ├── App.jsx           # Root component
+│   └── main.jsx          # Entry point
+├── uploads/              # File uploads storage
 └── README.md
 ```
 
@@ -80,85 +109,57 @@ hrmanagement/
 
 ## 📌 Key Components
 
-- **📊 Dashboard**  
-  Summary page displaying overall HR metrics such as total employees, applicants, disbursements, and leaves. Includes payroll overview charts with filtering.
-
 - **👥 All Employees**  
-  Full list of registered employees with filtering by department and real-time search.
+  Complete employee directory with filtering, search, and detailed profile views.
 
 - **💸 Disbursement**  
-  Track and manage employee financial disbursements such as reimbursements, claims, and payouts.
+  Financial disbursement tracking with multi-category support and status management.
 
 - **📁 Payroll**  
-  Manage base salary, bonuses, and overtime. View monthly breakdowns in a graphical format.
+  Comprehensive payroll management with salary breakdowns and payment history.
 
 - **📰 News**  
-  Company announcements or HR notices displayed for employees.
+  Company announcements system with categorization and attachment support.
 
 - **🌿 Leaves**  
-  View and manage employee leave requests and leave status by type and period.
+  Leave management with configurable types, approval workflow, and balance tracking.
 
 - **📅 Holidays**  
-  View official holidays and customized company leave days.
+  Holiday calendar management with custom event support.
 
 - **⚙️ Settings**  
-  Configuration area to manage system preferences, themes (dark/light), and roles.
+  System configuration, including account preferences and notifications.
 
-- **👤 Admin Panel**  
-  Topbar with search, notifications, and user account profile with dropdown options.
+- **👤 Account Management**  
+  User account control with security settings and role management.
 
+## 🚀 Installation
 
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## 🎨 Theme Colors
+## 💻 Development
 
-| Description        | Color        |
-|--------------------|--------------|
-| Primary (Purple)   | `#7152F3`    |
-| Background Light   | `#FFFFFF`    |
-| Background Dark    | `#2C2C3A`    |
-| Text Light         | `#333333`    |
-| Text Dark          | `#FFFFFF`    |
+- Run development server: `npm run dev`
+- Build for production: `npm run build`
+- Start production server: `npm start`
 
+## 🎨 Theme Customization
 
+The system uses a customizable theme with primary colors that can be configured in the Tailwind configuration.
 
-## 🌐 Browser Compatibility
+## 🔒 Security
 
-| Browser      | Supported |
-|--------------|-----------|
-| Chrome       | ✅         |
-| Firefox      | ✅         |
-| Edge         | ✅         |
-
-
-
-## 🤝 Contributing
-
-```bash
-# 1. Fork this repository
-# 2. Create a new branch
-git checkout -b feature/YourFeature
-
-# 3. Make changes and commit
-git commit -m "✨ Add YourFeature"
-
-# 4. Push and open a pull request
-git push origin feature/YourFeature
-```
-
-
-
-## 🌐 Browser Support
-
-- Chrome (latest)
-- Opera (latest)
-- Edge (latest)
-- Brave (latest)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- Role-based access control
+- Secure authentication
+- Password encryption
+- Session management
 
