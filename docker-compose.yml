@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=dpg-d0qjgrbipnbc73eebl00-a.singapore-postgres.render.com
+      - DB_PORT=5432
+      - DB_USER=hrms_db
+      - DB_PASSWORD=3Z39NgvNYuYZ69TYnVbQrOqedQm7FPw5
+      - DB_NAME=hrmanagement_tjfe
+      - VITE_API_URL=https://hr-backend-ao5o.onrender.com
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
