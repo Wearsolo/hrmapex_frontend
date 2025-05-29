@@ -49,10 +49,7 @@ const Notification = () => {
     }
   ];
 
-  const [activeTab, setActiveTab] = useState('all');
-  const [selectedNotification, setSelectedNotification] = useState(null);
-
-  const filterNotifications = (tab) => {
+  const [activeTab, setActiveTab] = useState('all');  const filterNotifications = (tab) => {
     switch (tab) {
       case 'unread':
         return notifications.filter(n => !n.isRead);
@@ -77,11 +74,6 @@ const Notification = () => {
         return <FiCheckCircle className="notification-icon" />;
     }
   };
-
-  const handleNotificationClick = (notification) => {
-    setSelectedNotification(notification);
-  };
-
   return (
     <div className="notification dashboard-container">
       <SideMenu />
@@ -120,11 +112,9 @@ const Notification = () => {
 
           <div className="notifications-container">
             <div className="notifications-list">
-              {filterNotifications(activeTab).map(notification => (
-                <div 
+              {filterNotifications(activeTab).map(notification => (                <div 
                   key={notification.id}
                   className={`notification-card ${notification.isRead ? 'read' : 'unread'}`}
-                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="notification-header">
                     {getIcon(notification.type)}
@@ -138,21 +128,6 @@ const Notification = () => {
                 </div>
               ))}
             </div>
-
-            {selectedNotification && (
-              <div className="notification-detail">
-                <div className="detail-header">
-                  {getIcon(selectedNotification.type)}
-                  <div className="detail-info">
-                    <h2>{selectedNotification.title}</h2>
-                    <span className="time">{selectedNotification.time}</span>
-                  </div>
-                </div>
-                <div className="detail-content">
-                  <p>{selectedNotification.message}</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
