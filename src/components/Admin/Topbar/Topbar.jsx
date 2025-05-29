@@ -137,9 +137,11 @@ function Topbar({ pageTitle = "Dashboard", pageSubtitle = "" }) {
                         </div>
                       </div>
                     ))}
-                  </div>
-                  <div className="notifications-footer">
-                    <button onClick={() => navigate('/notifications')}>
+                  </div>                  <div className="notifications-footer">
+                    <button onClick={() => {
+                      setIsNotificationOpen(false);
+                      navigate('/admin/notifications');
+                    }}>
                       View All Notifications
                     </button>
                   </div>

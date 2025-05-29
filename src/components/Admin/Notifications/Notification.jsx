@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FiCheckCircle, FiFileText, FiDollarSign, FiClock } from 'react-icons/fi';
-import SideMenu from '../SideMenu/SideMenu';
-import Topbar from '../Topbar/Topbar';
+import SideMenu from '../SideMenu/Side_menu.jsx';
+import Topbar from '../Topbar/Topbar.jsx';
 import './Notification.css';
 
 const Notification = () => {
@@ -80,13 +80,12 @@ const Notification = () => {
 
   const handleNotificationClick = (notification) => {
     setSelectedNotification(notification);
-    // ทำการ mark as read และอื่นๆ ตามต้องการ
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="notification dashboard-container">
       <SideMenu />
-      <div className="dashboard-main">
+      <div className="notification dashboard-main">
         <Topbar pageTitle="การแจ้งเตือน" pageSubtitle="จัดการการแจ้งเตือนทั้งหมด" />
         
         <div className="notifications-page">
@@ -151,7 +150,6 @@ const Notification = () => {
                 </div>
                 <div className="detail-content">
                   <p>{selectedNotification.message}</p>
-                  {/* เพิ่มรายละเอียดอื่นๆ ตามต้องการ */}
                 </div>
               </div>
             )}

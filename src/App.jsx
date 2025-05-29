@@ -21,6 +21,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import Home from './components/User/Home/Home'
 import './styles/global.css'
 import EditAccount from './components/Admin/Account/EditAccount'
+import Notification from './components/Admin/Notifications/Notification'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="/newholiday/:monthIndex" element={<NewHoliday />} />
           <Route path="/account" element={<Account />} />
           <Route path="/edit-account/:id" element={<EditAccount />} />
+          <Route path="/admin/notifications" element={<Notification />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>
