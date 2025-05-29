@@ -78,7 +78,7 @@ function ForgotPassword() {
           </div>
 
           <button className="login-button" onClick={handleSendOTP}>
-            Send OTP
+            Confirm
           </button>
         </div>
       </div>
