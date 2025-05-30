@@ -48,6 +48,59 @@ function New() {
     { value: 'Activity', label: 'Activity' },
     { value: 'IT', label: 'IT' }
   ];
+  // Mock news data
+  const mockNews = [
+    {
+      NewsId: "NEWS001",
+      Title: "Company-wide System Update",
+      Category: "IT",
+      Content: "We will be performing a system-wide update this weekend. All systems will be unavailable from Saturday 22:00 to Sunday 02:00. Please save all your work before the maintenance window.\n\nKey Updates:\n- Security patches\n- Performance improvements\n- New features deployment",
+      CreatedAt: "2025-05-30T09:00:00",
+      Attachment: "system_update_notice.pdf",
+      isPinned: 1,
+      Hidenews: 0
+    },
+    {
+      NewsId: "NEWS002",
+      Title: "Annual Company Outing 2025",
+      Category: "Activity",
+      Content: "Mark your calendars! Our annual company outing is scheduled for June 15th, 2025. This year, we're heading to Paradise Beach Resort for a day of team building, fun activities, and relaxation.\n\nPlease fill out the participation form by June 5th.",
+      CreatedAt: "2025-05-29T14:30:00",
+      Attachment: "company_outing_2025.jpg",
+      isPinned: 1,
+      Hidenews: 0
+    },
+    {
+      NewsId: "NEWS003",
+      Title: "New Project Management Tool Implementation",
+      Category: "Announcement",
+      Content: "Starting from next month, we will be transitioning to a new project management tool. Training sessions will be conducted throughout June.\n\nSchedule:\n- June 1: Introduction\n- June 3: Basic Training\n- June 5: Advanced Features",
+      CreatedAt: "2025-05-28T11:15:00",
+      Attachment: "new_pm_tool_guide.pdf",
+      isPinned: 0,
+      Hidenews: 0
+    },
+    {
+      NewsId: "NEWS004",
+      Title: "Office Renovation Schedule",
+      Category: "Announcement",
+      Content: "The office renovation will begin on June 10th. During this time, teams will be temporarily relocated to different floors. Please check the attached seating plan for your temporary workspace.",
+      CreatedAt: "2025-05-27T16:45:00",
+      Attachment: "renovation_plan.pdf",
+      isPinned: 0,
+      Hidenews: 0
+    },
+    {
+      NewsId: "NEWS005",
+      Title: "New Employee Benefits Program",
+      Category: "Announcement",
+      Content: "We're excited to announce updates to our employee benefits program, including enhanced healthcare coverage and new wellness initiatives. These changes will take effect from July 1st, 2025.",
+      CreatedAt: "2025-05-26T10:20:00",
+      Attachment: "benefits_update_2025.pdf",
+      isPinned: 0,
+      Hidenews: 1
+    }
+  ];
 
   useEffect(() => {
     fetchNews();
@@ -55,9 +108,8 @@ function New() {
 
   const fetchNews = async () => {
     try {
-      const response = await axios.get(API_URL);
-      const apiNews = response.data;
-      const sortedNews = mapApiNewsData(apiNews).sort((a, b) => {
+      // Use mock data instead of API call
+      const sortedNews = mockNews.sort((a, b) => {
         if (a.isPinned !== b.isPinned) {
           return b.isPinned - a.isPinned;
         }
@@ -131,41 +183,35 @@ function New() {
       setForm(f => ({ ...f, [name]: value }));
     }
   };
-
   const handleSubmit = async e => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', form.title);
-    formData.append('category', form.category);
-    formData.append('content', form.content);
-    if (form.attachment) {
-      formData.append('attachment', form.attachment);
-    }
-    
     try {
-      if (editItem) {
-        const response = await axios.put(`${API_URL}/${editItem.NewsId}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        });
+      const newNewsItem = {
+        NewsId: editItem ? editItem.NewsId : `NEWS${Date.now()}`,
+        Title: form.title,
+        Category: form.category,
+        Content: form.content,
+        CreatedAt: new Date().toISOString(),
+        Attachment: form.attachment ? form.attachment.name : null,
+        isPinned: 0,
+        Hidenews: 0
+      };
 
-        if (response.data) {
-          await fetchNews(); // Refresh the news list
-          handleCloseModal();
-        }
+      if (editItem) {
+        // Update existing news
+        setNews(prevNews => 
+          prevNews.map(item => 
+            item.NewsId === editItem.NewsId ? newNewsItem : item
+          )
+        );
       } else {
-        await axios.post(API_URL, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-        await fetchNews();
-        handleCloseModal();
+        // Add new news
+        setNews(prevNews => [...prevNews, newNewsItem]);
       }
+      handleCloseModal();
     } catch (error) {
       console.error('Error saving news:', error);
-      alert(error.response?.data?.error || 'Failed to save news. Please try again.');
+      alert('Failed to save news. Please try again.');
     }
   };
 

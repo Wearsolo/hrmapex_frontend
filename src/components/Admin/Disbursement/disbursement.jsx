@@ -31,19 +31,93 @@ const Disbursement = () => {
   const [showRejectPopup, setShowRejectPopup] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [selectedDisbursementId, setSelectedDisbursementId] = useState(null);
-
   // Mock data for demonstration
   const mockDisbursements = [
     {
-      id: 1,
-      employeeName: 'สมชาย ใจดี',
-      category: 'ค่าเดินทาง',
-      amount: 1500,
-      status: 'Pending',
-      date: '2025-05-07',
-      details: 'ค่าแท็กซี่ไปประชุมลูกค้า',
+      id: "DISB20250530001",
+      employeeName: "John Doe",
+      employeeId: "1",
+      category: "Travel",
+      amount: 2500,
+      status: "Pending",
+      date: "2025-05-30",
+      details: "Business trip to client meeting",
+      email: "john.doe@company.com",
       attachments: [
-        { id: 1, name: 'ใบเสร็จค่าแท็กซี่.pdf', url: '/uploads/receipt1.pdf' }
+        { id: 1, name: "taxi_receipt.pdf", url: "/uploads/taxi_receipt.pdf" },
+        { id: 2, name: "hotel_receipt.pdf", url: "/uploads/hotel_receipt.pdf" }
+      ]
+    },
+    {
+      id: "DISB20250529001",
+      employeeName: "Jane Smith",
+      employeeId: "2",
+      category: "Equipment",
+      amount: 35000,
+      status: "Approved",
+      date: "2025-05-29",
+      details: "New laptop for development team",
+      email: "jane.smith@company.com",
+      attachments: [
+        { id: 3, name: "laptop_invoice.pdf", url: "/uploads/laptop_invoice.pdf" }
+      ]
+    },
+    {
+      id: "DISB20250528001",
+      employeeName: "Admin System",
+      employeeId: "EMP2025044861",
+      category: "Software",
+      amount: 15000,
+      status: "Pending",
+      date: "2025-05-28",
+      details: "Annual software licenses renewal",
+      email: "admin@company.com",
+      attachments: [
+        { id: 4, name: "license_invoice.pdf", url: "/uploads/license_invoice.pdf" },
+        { id: 5, name: "quote.pdf", url: "/uploads/quote.pdf" }
+      ]
+    },
+    {
+      id: "DISB20250527001",
+      employeeName: "John Doe",
+      employeeId: "1",
+      category: "Training",
+      amount: 12000,
+      status: "Rejected",
+      date: "2025-05-27",
+      details: "Advanced React Development Course",
+      email: "john.doe@company.com",
+      rejectReason: "Please provide more details about the course curriculum",
+      attachments: [
+        { id: 6, name: "course_details.pdf", url: "/uploads/course_details.pdf" }
+      ]
+    },
+    {
+      id: "DISB20250526001",
+      employeeName: "Jane Smith",
+      employeeId: "2",
+      category: "Food",
+      amount: 3500,
+      status: "Approved",
+      date: "2025-05-26",
+      details: "Team lunch meeting - Project kickoff",
+      email: "jane.smith@company.com",
+      attachments: [
+        { id: 7, name: "restaurant_bill.pdf", url: "/uploads/restaurant_bill.pdf" }
+      ]
+    },
+    {
+      id: "DISB20250525001",
+      employeeName: "Admin System",
+      employeeId: "EMP2025044861",
+      category: "Others",
+      amount: 8500,
+      status: "Approved",
+      date: "2025-05-25",
+      details: "Office supplies and sanitizers",
+      email: "admin@company.com",
+      attachments: [
+        { id: 8, name: "office_supplies.pdf", url: "/uploads/office_supplies.pdf" }
       ]
     },
     {
@@ -91,18 +165,9 @@ const Disbursement = () => {
       attachments: []
     }
   ];
-
   useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        // Map employeename (จาก backend) เป็น employeeName (frontend)
-        const mapped = data.map(item => ({
-          ...item,
-          employeeName: item.employeename || item.employeeName
-        }));
-        setDisbursements(mapped);
-      });
+    // ใช้ mock data แทนการเรียก API
+    setDisbursements(mockDisbursements);
   }, []);
 
   const handleApprove = (id) => {

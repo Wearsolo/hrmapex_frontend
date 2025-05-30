@@ -16,167 +16,6 @@ const mainTabs = [
   { key: 'other', label: 'Other', icon: <FiMoreHorizontal /> }
 ];
 
-const MOCK_EMPLOYEE_DATA = {
-  "EMP001": {
-    EmployeeId: "EMP001",
-    FName: "Sarah",
-    LName: "Johnson",
-    Nickname: "Sara",
-    Email: "sarah.j@company.com",
-    MobileNumber: "081-234-5678",
-    Position: "Senior Developer",
-    Department: "IT",
-    Type: "Full-time",
-    Status: "Active",
-    ImageUrl: "https://randomuser.me/api/portraits/women/32.jpg",
-    DateOfBirth: "1990-05-15",
-    Age: 33,
-    Gender: "Female",
-    Nationality: "Thai",
-    MaritalStatus: "Single",
-    Religion: "พุทธศาสนา",
-    Address: "123/45 Sukhumvit Road",
-    City: "Bangkok",
-    State: "Bangkok",
-    ZIPCode: "10110",
-    BankName: "Kasikorn Bank",
-    AccountNumber: "123-4-56789-0",
-    AccountHolderName: "Sarah Johnson",
-    Salary: 85000,
-    StartDate: "2020-06-01",
-    experience: [
-      {
-        company: "Tech Corp",
-        position: "Developer",
-        fromDate: "2018-01",
-        toDate: "2020-05",
-        salary: "65000",
-        jobDescription: "• Led development of e-commerce platform using React.js\n• Mentored 3 junior developers\n• Improved site performance by 40%"
-      }
-    ],
-    education: [
-      {
-        level: "ปริญญาตรี",
-        institution: "Chulalongkorn University",
-        major: "Computer Science",
-        graduationYear: "2018"
-      }
-    ]
-  },
-  "EMP002": {
-    EmployeeId: "EMP002",
-    FName: "Michael",
-    LName: "Chen",
-    Nickname: "Mike",
-    Email: "michael.c@company.com",
-    MobileNumber: "089-876-5432",
-    Position: "Marketing Manager",
-    Department: "Marketing",
-    Type: "Full-time",
-    Status: "Active",
-    ImageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
-    DateOfBirth: "1988-08-20",
-    Age: 35,
-    Gender: "Male",
-    Nationality: "Thai",
-    MaritalStatus: "Married",
-    Religion: "คริสต์ศาสนา",
-    Address: "456 Silom Road",
-    City: "Bangkok",
-    State: "Bangkok",
-    ZIPCode: "10500",
-    BankName: "Bangkok Bank",
-    AccountNumber: "987-6-54321-0",
-    AccountHolderName: "Michael Chen",
-    Salary: 95000,
-    StartDate: "2019-03-15"
-  },
-  "EMP003": {
-    EmployeeId: "EMP003",
-    FName: "Emma",
-    LName: "Wilson",
-    Nickname: "Em",
-    Email: "emma.w@company.com",
-    MobileNumber: "086-345-6789",
-    Position: "HR Specialist",
-    Department: "Human Resources",
-    Type: "Part-time",
-    Status: "Active",
-    ImageUrl: "https://randomuser.me/api/portraits/women/68.jpg",
-    DateOfBirth: "1992-12-10",
-    Age: 31,
-    Gender: "Female",
-    Nationality: "Thai",
-    MaritalStatus: "Single",
-    Religion: "พุทธศาสนา",
-    Address: "789 Ratchada Road",
-    City: "Bangkok",
-    State: "Bangkok",
-    ZIPCode: "10400",
-    BankName: "SCB",
-    AccountNumber: "456-7-89012-3",
-    AccountHolderName: "Emma Wilson",
-    Salary: 45000,
-    StartDate: "2021-01-10"
-  },
-  "EMP004": {
-    EmployeeId: "EMP004",
-    FName: "David",
-    LName: "Thompson",
-    Nickname: "Dave",
-    Email: "david.t@company.com",
-    MobileNumber: "083-567-8901",
-    Position: "Financial Analyst",
-    Department: "Finance",
-    Type: "Contract",
-    Status: "On Leave",
-    ImageUrl: "https://randomuser.me/api/portraits/men/22.jpg",
-    DateOfBirth: "1991-03-25",
-    Age: 32,
-    Gender: "Male",
-    Nationality: "Thai",
-    MaritalStatus: "Married",
-    Religion: "พุทธศาสนา",
-    Address: "321 Petchburi Road",
-    City: "Bangkok",
-    State: "Bangkok",
-    ZIPCode: "10400",
-    BankName: "Krungthai Bank",
-    AccountNumber: "789-0-12345-6",
-    AccountHolderName: "David Thompson",
-    Salary: 65000,
-    StartDate: "2022-05-20"
-  },
-  "EMP005": {
-    EmployeeId: "EMP005",
-    FName: "Lisa",
-    LName: "Garcia",
-    Nickname: "Lis",
-    Email: "lisa.g@company.com",
-    MobileNumber: "087-890-1234",
-    Position: "Sales Representative",
-    Department: "Sales",
-    Type: "Full-time",
-    Status: "Inactive",
-    ImageUrl: "https://randomuser.me/api/portraits/women/89.jpg",
-    DateOfBirth: "1993-07-30",
-    Age: 30,
-    Gender: "Female",
-    Nationality: "Thai",
-    MaritalStatus: "Single",
-    Religion: "คริสต์ศาสนา",
-    Address: "654 Asok Road",
-    City: "Bangkok",
-    State: "Bangkok",
-    ZIPCode: "10110",
-    BankName: "TMB Bank",
-    AccountNumber: "234-5-67890-1",
-    AccountHolderName: "Lisa Garcia",
-    Salary: 55000,
-    StartDate: "2021-08-15"
-  }
-};
-
 const ProfileDetail = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -192,9 +31,165 @@ const ProfileDetail = () => {
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
-      try {
-        // Replace API call with mock data
-        const mockEmployee = MOCK_EMPLOYEE_DATA[id];
+      try {        const mockEmployeeData = {
+          "EMP2025044861": {
+            EmployeeId: "EMP2025044861",
+            FName: "Admin",
+            LName: "System",
+            Nickname: "Admin",
+            Email: "admin@company.com",
+            MobileNumber: "099-999-9999",
+            Position: "System Administrator",
+            Department: "IT",
+            Type: "Full-time",
+            Status: "Active",
+            ImageUrl: "https://randomuser.me/api/portraits/men/85.jpg",
+            DateOfBirth: "1990-01-01",
+            Age: 35,
+            Gender: "Male",
+            Nationality: "Thai",
+            MaritalStatus: "Single",
+            Religion: "พุทธศาสนา",
+            Address: "999 IT Square",
+            City: "Bangkok",
+            State: "Bangkok",
+            ZIPCode: "10400",
+            BankName: "Kasikorn Bank",
+            AccountNumber: "xxx-x-xxxxx-x",
+            AccountHolderName: "Admin System",
+            Salary: 150000,
+            StartDate: "2020-01-01",
+            Username: "admin",
+            Role: "admin",
+            experience: [
+              {
+                company: "Tech Solutions Co., Ltd",
+                position: "Senior System Administrator",
+                fromDate: "2015-01",
+                toDate: "2019-12",
+                salary: "120000",
+                jobDescription: "• Managed enterprise-level IT infrastructure\n• Led IT security implementations\n• Supervised team of 5 system administrators"
+              },
+              {
+                company: "Digital Systems Corp",
+                position: "System Administrator",
+                fromDate: "2012-06",
+                toDate: "2014-12",
+                salary: "85000",
+                jobDescription: "• Maintained server infrastructure\n• Implemented security protocols\n• Managed user access control systems"
+              }
+            ],
+            education: [
+              {
+                level: "ปริญญาโท",
+                institution: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี",
+                major: "วิศวกรรมคอมพิวเตอร์",
+                graduationYear: "2012"
+              },
+              {
+                level: "ปริญญาตรี",
+                institution: "มหาวิทยาลัยเกษตรศาสตร์",
+                major: "วิศวกรรมคอมพิวเตอร์",
+                graduationYear: "2010"
+              }
+            ]
+          },
+          "1": {
+            EmployeeId: "1",
+            FName: "John",
+            LName: "Doe",
+            Nickname: "JD",
+            Email: "john.doe@company.com",
+            MobileNumber: "123-456-7890",
+            Position: "Software Engineer",
+            Department: "Engineering",
+            Type: "Full-time",
+            Status: "Active",
+            ImageUrl: "https://randomuser.me/api/portraits/men/1.jpg",
+            DateOfBirth: "1995-05-15",
+            Age: 30,
+            Gender: "Male",
+            Nationality: "Thai",
+            MaritalStatus: "Single",
+            Religion: "พุทธศาสนา",
+            Address: "123 Main St",
+            City: "Bangkok",
+            State: "Bangkok",
+            ZIPCode: "10110",
+            BankName: "Kasikorn Bank",
+            AccountNumber: "123-4-56789-0",
+            AccountHolderName: "John Doe",
+            Salary: 75000,
+            StartDate: "2023-01-15",
+            experience: [
+              {
+                company: "Previous Tech Co",
+                position: "Junior Developer",
+                fromDate: "2020-01",
+                toDate: "2022-12",
+                salary: "45000",
+                jobDescription: "• Developed web applications using React\n• Worked with REST APIs\n• Participated in Agile development"
+              }
+            ],
+            education: [
+              {
+                level: "ปริญญาตรี",
+                institution: "มหาวิทยาลัยเกษตรศาสตร์",
+                major: "วิศวกรรมคอมพิวเตอร์",
+                graduationYear: "2020"
+              }
+            ]
+          },
+          "2": {
+            EmployeeId: "2",
+            FName: "Jane",
+            LName: "Smith",
+            Nickname: "JS",
+            Email: "jane.smith@company.com",
+            MobileNumber: "098-765-4321",
+            Position: "Project Manager",
+            Department: "Management",
+            Type: "Full-time",
+            Status: "Active",
+            ImageUrl: "https://randomuser.me/api/portraits/women/1.jpg",
+            DateOfBirth: "1992-08-20",
+            Age: 33,
+            Gender: "Female",
+            Nationality: "Thai",
+            MaritalStatus: "Married",
+            Religion: "พุทธศาสนา",
+            Address: "456 Side St",
+            City: "Bangkok",
+            State: "Bangkok",
+            ZIPCode: "10120",
+            BankName: "SCB",
+            AccountNumber: "098-7-65432-1",
+            AccountHolderName: "Jane Smith",
+            Salary: 95000,
+            StartDate: "2022-03-01",
+            experience: [
+              {
+                company: "Old Tech Ltd",
+                position: "Team Lead",
+                fromDate: "2018-06",
+                toDate: "2022-02",
+                salary: "85000",
+                jobDescription: "• Led team of 5 developers\n• Managed project timelines and deliverables\n• Implemented Agile methodologies"
+              }
+            ],
+            education: [
+              {
+                level: "ปริญญาโท",
+                institution: "จุฬาลงกรณ์มหาวิทยาลัย",
+                major: "บริหารธุรกิจ",
+                graduationYear: "2018"
+              }
+            ]
+          }
+        };
+
+        // Get employee data from mock data
+        const mockEmployee = mockEmployeeData[id];
         if (mockEmployee) {
           setEmployeeData(mockEmployee);
           setEditData(mockEmployee);
@@ -252,15 +247,13 @@ const ProfileDetail = () => {
   const handleSave = async () => {
     setShowSaveConfirm(true);
   };
-
   const handleConfirmSave = async () => {
     try {
-      const response = await axios.put(`http://localhost:3001/api/employees/${id}`, editData);
-      if (response.data) {
-        setEmployeeData(editData);
-        setIsEditing(false);
-        setShowSaveConfirm(false);
-      }
+      // Mock successful update
+      setEmployeeData(editData);
+      setIsEditing(false);
+      setShowSaveConfirm(false);
+      alert('Employee data updated successfully!');
     } catch (error) {
       console.error('Error updating employee:', error);
       alert('Failed to update employee. Please try again.');

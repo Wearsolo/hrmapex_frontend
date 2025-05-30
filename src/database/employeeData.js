@@ -1,4 +1,60 @@
-import employeesJson from './employees.sql?raw'
+// Mock employee data
+export const employeesJson = [
+  {
+    id: "879912390",
+    first_name: "Brooklyn",
+    last_name: "Simmons",
+    department: "Project Management",
+    designation: "Project Manager",
+    employee_type: "Office",
+    status: "Permanent",
+    mobile_number: "(702) 555-0122",
+    email: "brooklyn.s@example.com",
+    date_of_birth: "1995-07-14",
+    marital_status: "Married",
+    gender: "Female",
+    nationality: "American",
+    date_joined: "2022-07-10",
+    working_days: 5,
+    address: "2464 Royal Ln, Mesa",
+    city: "New Jersey",
+    zip_code: "35524",
+    office_location: "2464 Royal Ln, Mesa, New Jersey",
+    report_to: "Ralph Edwards",
+    shift: "9:00 AM - 6:00 PM",
+    state: "New Jersey",
+    supervisor: "James Wilson",
+    salary: 85000.00,
+    image_url: "https://randomuser.me/api/portraits/women/1.jpg"
+  },
+  {
+    id: "879912391",
+    first_name: "Alex",
+    last_name: "Johnson",
+    department: "Engineering",
+    designation: "Senior Developer",
+    employee_type: "Office",
+    status: "Permanent",
+    mobile_number: "(702) 555-0123",
+    email: "alex.j@example.com",
+    date_of_birth: "1990-03-21",
+    marital_status: "Single",
+    gender: "Male",
+    nationality: "American",
+    date_joined: "2021-08-15",
+    working_days: 5,
+    address: "789 Tech Ave",
+    city: "San Francisco",
+    zip_code: "94105",
+    office_location: "789 Tech Ave, San Francisco, CA",
+    report_to: "Brooklyn Simmons",
+    shift: "9:00 AM - 6:00 PM",
+    state: "California",
+    supervisor: "Brooklyn Simmons",
+    salary: 120000.00,
+    image_url: "https://randomuser.me/api/portraits/men/2.jpg"
+  }
+];
 
 export const getEmployees = () => {
   try {

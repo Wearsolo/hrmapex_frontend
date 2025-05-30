@@ -36,13 +36,79 @@ const AllEmployees = () => {
       return
     }
 
-    const fetchEmployees = async () => {
-      try {
+    const fetchEmployees = async () => {      try {
         setIsLoading(true)
         setError(null)
-        const response = await axios.get('http://localhost:3001/api/employees')
-        setEmployees(response.data)
-        setFilteredEmployees(response.data)
+        // Mock employee data
+        const mockEmployees = [
+          {
+            EmployeeId: "1",
+            FName: "John",
+            LName: "Doe",
+            Nickname: "JD",
+            Email: "john.doe@company.com",
+            MobileNumber: "123-456-7890",
+            Position: "Programmer",
+            Type: "Permanent",
+            Status: "Active",
+            Department: "Engineering",
+            ImageUrl: "https://randomuser.me/api/portraits/men/1.jpg"
+          },
+          {
+            EmployeeId: "2",
+            FName: "Jane",
+            LName: "Smith",
+            Nickname: "JS",
+            Email: "jane.smith@company.com",
+            MobileNumber: "098-765-4321",
+            Position: "HR",
+            Type: "Permanent",
+            Status: "Active",
+            Department: "Management",
+            ImageUrl: "https://randomuser.me/api/portraits/women/1.jpg"          },
+          {
+            EmployeeId: "3",
+            FName: "Robert",
+            LName: "Johnson",
+            Nickname: "Rob",
+            Email: "robert.j@company.com",
+            MobileNumber: "555-123-4567",
+            Position: "System",
+            Type: "Freelance",
+            Status: "Active",
+            Department: "Design",
+            ImageUrl: "https://randomuser.me/api/portraits/men/2.jpg"
+          },
+          {
+            EmployeeId: "4",
+            FName: "Maria",
+            LName: "Garcia",
+            Nickname: "Mary",
+            Email: "maria.g@company.com",
+            MobileNumber: "555-987-6543",
+            Position: "HR",
+            Type: "Permanent",
+            Status: "InActive",
+            Department: "Human Resources",
+            ImageUrl: "https://randomuser.me/api/portraits/women/2.jpg"
+          },
+          {
+            EmployeeId: "5",
+            FName: "David",
+            LName: "Brown",
+            Nickname: "Dave",
+            Email: "david.b@company.com",
+            MobileNumber: "555-246-8135",
+            Position: "Programmer",
+            Type: "Intern",
+            Status: "Active",
+            Department: "Sales",
+            ImageUrl: "https://randomuser.me/api/portraits/men/3.jpg"
+          }
+        ];
+        
+        setEmployees(mockEmployees)
+        setFilteredEmployees(mockEmployees)
       } catch (error) {
         console.error('Error fetching employees:', error)
         setError('Failed to fetch employees. Please try again later.')
@@ -108,11 +174,10 @@ const AllEmployees = () => {
     setEmployeeToDelete(employee)
     setDeleteModalOpen(true)
   }
-
   // Handle delete employee
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3001/api/employees/${employeeToDelete.EmployeeId}`)
+      // Mock delete - just remove from state
       const updatedEmployees = employees.filter(
         emp => emp.EmployeeId !== employeeToDelete.EmployeeId
       )
