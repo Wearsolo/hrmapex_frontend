@@ -1,6 +1,6 @@
 # 💼 HR Management System
 
-A comprehensive HR Management System built with **React** and **Node.js**, designed to streamline HR operations and employee management.
+A modern HR Management System frontend built with **React**, designed to streamline HR operations and employee management.
 
 ## ✨ Features
 
@@ -11,8 +11,7 @@ A comprehensive HR Management System built with **React** and **Node.js**, desig
 – Quick search functionality  
 
 🔹 **Leave Management**  
-– Configurable leave types with duration limits  
-– Leave request tracking and approval workflow  
+– Leave request tracking  
 – Leave balance monitoring  
 – Detailed leave reports  
 
@@ -20,12 +19,6 @@ A comprehensive HR Management System built with **React** and **Node.js**, desig
 – Track financial disbursements and claims  
 – Multi-category support (Travel, etc.)  
 – Status tracking and filtering  
-
-🔹 **Payroll System**  
-– Salary management and payroll processing  
-– Detailed payroll reports  
-– Salary component breakdown  
-– Payment history tracking  
 
 🔹 **News & Announcements**  
 – Company-wide announcements  
@@ -37,7 +30,6 @@ A comprehensive HR Management System built with **React** and **Node.js**, desig
 – Official holiday calendar  
 – Custom company events  
 – Holiday type categorization  
-– Duration tracking  
 
 🔹 **Account Management**  
 – Role-based access control  
@@ -58,8 +50,6 @@ A comprehensive HR Management System built with **React** and **Node.js**, desig
 - ⚛️ React 18 + Vite  
 - 🎨 Tailwind CSS  
 - 🎞️ Framer Motion for animations  
-- 🌐 Node.js Express backend  
-- 🗃️ PostgreSQL database  
 - 🔄 Axios for API communication  
 - 🎯 Context API for state management  
 
@@ -76,10 +66,7 @@ cd hrmanagement
 # 2. Install dependencies
 npm install
 
-# 3. Start backend server
-node server/index.js
-
-# 4. Start frontend development server
+# 3. Start frontend development server
 npm run dev
 ```
 
@@ -89,23 +76,18 @@ npm run dev
 
 ```
 hrmanagement/
-├── server/                 # Node.js backend (API & logic)
 ├── src/
 │   ├── assets/            # Static assets (images, icons)
 │   ├── components/        # React components
-│   │   ├── Admin/         # Admin interface components
-│   │   └── User/          # User interface components
-│   ├── context/           # Global state management
-│   ├── database/          # Database interactions
-│   ├── services/          # API services
+│   │   ├── Admin/        # Admin interface components
+│   │   └── User/         # User interface components
+│   ├── context/          # Global state management
+│   ├── services/         # API services & mock data
 │   ├── styles/           # Global styles
-│   ├── App.jsx           # Root component
-│   └── main.jsx          # Entry point
-├── uploads/              # File uploads storage
+│   ├── App.jsx          # Root component
+│   └── main.jsx         # Entry point
 └── README.md
 ```
-
-
 
 ## 📌 Key Components
 
@@ -115,14 +97,11 @@ hrmanagement/
 - **💸 Disbursement**  
   Financial disbursement tracking with multi-category support and status management.
 
-- **📁 Payroll**  
-  Comprehensive payroll management with salary breakdowns and payment history.
-
 - **📰 News**  
   Company announcements system with categorization and attachment support.
 
 - **🌿 Leaves**  
-  Leave management with configurable types, approval workflow, and balance tracking.
+  Leave management with configurable types and balance tracking.
 
 - **📅 Holidays**  
   Holiday calendar management with custom event support.
@@ -140,8 +119,7 @@ hrmanagement/
    ```bash
    npm install
    ```
-3. Set up environment variables
-4. Start the development server:
+3. Start the development server:
    ```bash
    npm run dev
    ```
@@ -150,16 +128,16 @@ hrmanagement/
 
 - Run development server: `npm run dev`
 - Build for production: `npm run build`
-- Start production server: `npm start`
+- Preview production build: `npm run preview`
 
 ## 🎨 Theme Customization
 
 The system uses a customizable theme with primary colors that can be configured in the Tailwind configuration.
 
-## 🔒 Security
+## 🔒 Security Features
 
 - Role-based access control
-- Secure authentication
-- Password encryption
+- Secure authentication flow
 - Session management
+- Password reset functionality
 

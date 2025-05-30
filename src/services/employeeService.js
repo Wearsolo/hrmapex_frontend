@@ -50,8 +50,12 @@ export const updateEmployeeProfile = async (employeeId, data) => {
 
 export const createEmployee = async (employeeData) => {
   try {
-    const response = await axios.post('http://localhost:3000/api/employees', employeeData);
-    return response.data;
+    // Mock creating a new employee - return the data with a fake ID
+    const newEmployee = {
+      ...employeeData,
+      id: Math.floor(Math.random() * 1000000).toString()
+    };
+    return Promise.resolve(newEmployee);
   } catch (error) {
     throw new Error('Failed to create employee: ' + error.message);
   }
