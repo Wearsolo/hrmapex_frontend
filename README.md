@@ -3,7 +3,7 @@
 A modern HR Management System frontend built with **React**, designed to streamline HR operations and employee management.
 
 ## ✨ Features
-
+##
 🔹 **Employee Management**  
 – Complete employee lifecycle management  
 – Detailed employee profiles with personal and professional information  
